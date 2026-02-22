@@ -6,3 +6,9 @@ plugins:
   - remote: buf.build/grpc/go
     out: api/gen
     opt: paths=source_relative
+  - remote: buf.build/grpc-ecosystem/gateway
+    out: api/gen
+    opt: paths=source_relative
+  - remote: buf.build/grpc-ecosystem/openapiv2
+    out: api/gen
+    opt: openapi_naming_strategy=simple

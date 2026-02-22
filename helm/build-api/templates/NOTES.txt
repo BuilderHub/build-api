@@ -1,0 +1,28 @@
+1. Get the API URL:
+{{- if .Values.ingress.enabled }}
+{{- range $host := .Values.ingress.hosts }}
+  {{- range .paths }}
+  http{{ if $.Values.ingress.tls }}s{{ end }}://{{ $host.host }}{{ .path }}
+  {{- end }}
+{{- end }}
+   Swagger UI: http{{ if .Values.ingress.tls }}s{{ end }}://<host>/docs
+   OpenAPI: http{{ if .Values.ingress.tls }}s{{ end }}://<host>/openapi.json
+{{- else if eq .Values.service.type "LoadBalancer" }}
+  export SERVICE_IP=$(kubectl get svc --namespace {{ .Release.Namespace }} {{ include "build-api.fullname" . }} -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
+  echo "HTTP:  http://$SERVICE_IP:{{ .Values.service.http.port }}"
+  echo "gRPC:  $SERVICE_IP:{{ .Values.service.grpc.port }}"
+  echo "Docs:  http://$SERVICE_IP:{{ .Values.service.http.port }}/docs"
+{{- else }}
+  kubectl --namespace {{ .Release.Namespace }} port-forward svc/{{ include "build-api.fullname" . }} 8080:{{ .Values.service.http.port }} 9090:{{ .Values.service.grpc.port }}
+  echo "HTTP:  http://127.0.0.1:8080"
+  echo "gRPC:  127.0.0.1:9090"
+  echo "Docs:  http://127.0.0.1:8080/docs"
+{{- end }}
+
+2. View logs:
+  kubectl logs -f --namespace {{ .Release.Namespace }} -l "app.kubernetes.io/name={{ include "build-api.name" . }},app.kubernetes.io/instance={{ .Release.Name }}"
+
+3. Check deployment:
+  kubectl get deployment --namespace {{ .Release.Namespace }} {{ include "build-api.fullname" . }}
+
+Thank you for installing {{ .Chart.Name }}!

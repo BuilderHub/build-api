@@ -7,6 +7,7 @@
 package buildapiv1
 
 import (
+	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	reflect "reflect"
@@ -693,7 +694,7 @@ var File_buildapi_v1_buildapi_proto protoreflect.FileDescriptor
 
 const file_buildapi_v1_buildapi_proto_rawDesc = "" +
 	"\n" +
-	"\x1abuildapi/v1/buildapi.proto\x12\vbuildapi.v1\"3\n" +
+	"\x1abuildapi/v1/buildapi.proto\x12\vbuildapi.v1\x1a\x1cgoogle/api/annotations.proto\"3\n" +
 	"\x13ListBuildersRequest\x12\x1c\n" +
 	"\tnamespace\x18\x01 \x01(\tR\tnamespace\"H\n" +
 	"\x14ListBuildersResponse\x120\n" +
@@ -734,14 +735,15 @@ const file_buildapi_v1_buildapi_proto_rawDesc = "" +
 	"\rBuilderStatus\x12\x1a\n" +
 	"\bendpoint\x18\x01 \x01(\tR\bendpoint\x12\x1b\n" +
 	"\tnode_port\x18\x02 \x01(\x05R\bnodePort\x12\x14\n" +
-	"\x05phase\x18\x03 \x01(\tR\x05phase2\xaa\x03\n" +
-	"\bBuildAPI\x12S\n" +
-	"\fListBuilders\x12 .buildapi.v1.ListBuildersRequest\x1a!.buildapi.v1.ListBuildersResponse\x12M\n" +
+	"\x05phase\x18\x03 \x01(\tR\x05phase2\x8f\x05\n" +
+	"\bBuildAPI\x12\x80\x01\n" +
+	"\fListBuilders\x12 .buildapi.v1.ListBuildersRequest\x1a!.buildapi.v1.ListBuildersResponse\"+\x82\xd3\xe4\x93\x02%\x12#/v1/namespaces/{namespace}/builders\x12\x81\x01\n" +
 	"\n" +
-	"GetBuilder\x12\x1e.buildapi.v1.GetBuilderRequest\x1a\x1f.buildapi.v1.GetBuilderResponse\x12V\n" +
-	"\rCreateBuilder\x12!.buildapi.v1.CreateBuilderRequest\x1a\".buildapi.v1.CreateBuilderResponse\x12P\n" +
-	"\vWakeBuilder\x12\x1f.buildapi.v1.WakeBuilderRequest\x1a .buildapi.v1.WakeBuilderResponse\x12P\n" +
-	"\vHealthCheck\x12\x1f.buildapi.v1.HealthCheckRequest\x1a .buildapi.v1.HealthCheckResponseB@Z>github.com/builderhub/build-api/api/gen/buildapi/v1;buildapiv1b\x06proto3"
+	"GetBuilder\x12\x1e.buildapi.v1.GetBuilderRequest\x1a\x1f.buildapi.v1.GetBuilderResponse\"2\x82\xd3\xe4\x93\x02,\x12*/v1/namespaces/{namespace}/builders/{name}\x12\x86\x01\n" +
+	"\rCreateBuilder\x12!.buildapi.v1.CreateBuilderRequest\x1a\".buildapi.v1.CreateBuilderResponse\".\x82\xd3\xe4\x93\x02(:\x01*\"#/v1/namespaces/{namespace}/builders\x12\x8c\x01\n" +
+	"\vWakeBuilder\x12\x1f.buildapi.v1.WakeBuilderRequest\x1a .buildapi.v1.WakeBuilderResponse\":\x82\xd3\xe4\x93\x024:\x01*\"//v1/namespaces/{namespace}/builders/{name}/wake\x12d\n" +
+	"\vHealthCheck\x12\x1f.buildapi.v1.HealthCheckRequest\x1a .buildapi.v1.HealthCheckResponse\"\x12\x82\xd3\xe4\x93\x02\f\x12\n" +
+	"/v1/healthB@Z>github.com/builderhub/build-api/api/gen/buildapi/v1;buildapiv1b\x06proto3"
 
 var (
 	file_buildapi_v1_buildapi_proto_rawDescOnce sync.Once

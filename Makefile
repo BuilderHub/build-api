@@ -4,7 +4,7 @@ BIN_DIR ?= bin
 
 .PHONY: generate
 generate:
-	$(BUF) mod update
+	$(BUF) dep update
 	$(BUF) generate
 
 .PHONY: build
