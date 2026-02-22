@@ -1,0 +1,104 @@
+syntax = "proto3";
+
+package buildapi.v1;
+
+import "google/api/annotations.proto";
+
+option go_package = "github.com/builderhub/build-api/api/gen/buildapi/v1;buildapiv1";
+
+// BuildAPI service - manages builds and builders.
+service BuildAPI {
+  // ListBuilders returns all BuildkitBuilder CRs in a namespace.
+  rpc ListBuilders(ListBuildersRequest) returns (ListBuildersResponse) {
+    option (google.api.http) = {get: "/v1/namespaces/{namespace}/builders"};
+  }
+
+  // GetBuilder returns a single BuildkitBuilder by name.
+  rpc GetBuilder(GetBuilderRequest) returns (GetBuilderResponse) {
+    option (google.api.http) = {get: "/v1/namespaces/{namespace}/builders/{name}"};
+  }
+
+  // CreateBuilder creates a new BuildkitBuilder CR.
+  rpc CreateBuilder(CreateBuilderRequest) returns (CreateBuilderResponse) {
+    option (google.api.http) = {
+      post: "/v1/namespaces/{namespace}/builders"
+      body: "*"
+    };
+  }
+
+  // WakeBuilder patches builder-hub.dev/last-used for sleepy builders (wakes them up).
+  rpc WakeBuilder(WakeBuilderRequest) returns (WakeBuilderResponse) {
+    option (google.api.http) = {
+      post: "/v1/namespaces/{namespace}/builders/{name}/wake"
+      body: "*"
+    };
+  }
+
+  // HealthCheck for liveness/readiness.
+  rpc HealthCheck(HealthCheckRequest) returns (HealthCheckResponse) {
+    option (google.api.http) = {get: "/v1/health"};
+  }
+}
+
+message ListBuildersRequest {
+  string namespace = 1;
+}
+
+message ListBuildersResponse {
+  repeated Builder builders = 1;
+}
+
+message GetBuilderRequest {
+  string namespace = 1;
+  string name = 2;
+}
+
+message GetBuilderResponse {
+  Builder builder = 1;
+}
+
+message CreateBuilderRequest {
+  string namespace = 1;
+  string name = 2;
+  BuilderSpec spec = 3;
+}
+
+message CreateBuilderResponse {
+  Builder builder = 1;
+}
+
+message WakeBuilderRequest {
+  string namespace = 1;
+  string name = 2;
+}
+
+message WakeBuilderResponse {
+  Builder builder = 1;
+}
+
+message HealthCheckRequest {}
+
+message HealthCheckResponse {
+  string status = 1;
+}
+
+message Builder {
+  string namespace = 1;
+  string name = 2;
+  BuilderSpec spec = 3;
+  BuilderStatus status = 4;
+}
+
+message BuilderSpec {
+  string template_ref = 1;
+  string mode = 2; // ephemeral, persistent, sleepy
+  int32 replicas = 3;
+  int32 idle_timeout_seconds = 4;
+  map<string, string> labels = 5;
+}
+
+message BuilderStatus {
+  string endpoint = 1;
+  int32 node_port = 2;
+  string phase = 3;
+}

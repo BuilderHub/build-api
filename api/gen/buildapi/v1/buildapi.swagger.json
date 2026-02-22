@@ -1,0 +1,339 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "buildapi/v1/buildapi.proto",
+    "version": "version not set"
+  },
+  "tags": [
+    {
+      "name": "BuildAPI"
+    }
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/v1/health": {
+      "get": {
+        "summary": "HealthCheck for liveness/readiness.",
+        "operationId": "BuildAPI_HealthCheck",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/HealthCheckResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/Status"
+            }
+          }
+        },
+        "tags": [
+          "BuildAPI"
+        ]
+      }
+    },
+    "/v1/namespaces/{namespace}/builders": {
+      "get": {
+        "summary": "ListBuilders returns all BuildkitBuilder CRs in a namespace.",
+        "operationId": "BuildAPI_ListBuilders",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/ListBuildersResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/Status"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "namespace",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "BuildAPI"
+        ]
+      },
+      "post": {
+        "summary": "CreateBuilder creates a new BuildkitBuilder CR.",
+        "operationId": "BuildAPI_CreateBuilder",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/CreateBuilderResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/Status"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "namespace",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/CreateBuilderBody"
+            }
+          }
+        ],
+        "tags": [
+          "BuildAPI"
+        ]
+      }
+    },
+    "/v1/namespaces/{namespace}/builders/{name}": {
+      "get": {
+        "summary": "GetBuilder returns a single BuildkitBuilder by name.",
+        "operationId": "BuildAPI_GetBuilder",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/GetBuilderResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/Status"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "namespace",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "name",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "BuildAPI"
+        ]
+      }
+    },
+    "/v1/namespaces/{namespace}/builders/{name}/wake": {
+      "post": {
+        "summary": "WakeBuilder patches builder-hub.dev/last-used for sleepy builders (wakes them up).",
+        "operationId": "BuildAPI_WakeBuilder",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/WakeBuilderResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/Status"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "namespace",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "name",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/WakeBuilderBody"
+            }
+          }
+        ],
+        "tags": [
+          "BuildAPI"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "Any": {
+      "type": "object",
+      "properties": {
+        "@type": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": {}
+    },
+    "Builder": {
+      "type": "object",
+      "properties": {
+        "namespace": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "spec": {
+          "$ref": "#/definitions/BuilderSpec"
+        },
+        "status": {
+          "$ref": "#/definitions/BuilderStatus"
+        }
+      }
+    },
+    "BuilderSpec": {
+      "type": "object",
+      "properties": {
+        "templateRef": {
+          "type": "string"
+        },
+        "mode": {
+          "type": "string",
+          "title": "ephemeral, persistent, sleepy"
+        },
+        "replicas": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "idleTimeoutSeconds": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "labels": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "BuilderStatus": {
+      "type": "object",
+      "properties": {
+        "endpoint": {
+          "type": "string"
+        },
+        "nodePort": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "phase": {
+          "type": "string"
+        }
+      }
+    },
+    "CreateBuilderBody": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "spec": {
+          "$ref": "#/definitions/BuilderSpec"
+        }
+      }
+    },
+    "CreateBuilderResponse": {
+      "type": "object",
+      "properties": {
+        "builder": {
+          "$ref": "#/definitions/Builder"
+        }
+      }
+    },
+    "GetBuilderResponse": {
+      "type": "object",
+      "properties": {
+        "builder": {
+          "$ref": "#/definitions/Builder"
+        }
+      }
+    },
+    "HealthCheckResponse": {
+      "type": "object",
+      "properties": {
+        "status": {
+          "type": "string"
+        }
+      }
+    },
+    "ListBuildersResponse": {
+      "type": "object",
+      "properties": {
+        "builders": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/Builder"
+          }
+        }
+      }
+    },
+    "Status": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/Any"
+          }
+        }
+      }
+    },
+    "WakeBuilderBody": {
+      "type": "object"
+    },
+    "WakeBuilderResponse": {
+      "type": "object",
+      "properties": {
+        "builder": {
+          "$ref": "#/definitions/Builder"
+        }
+      }
+    }
+  }
+}

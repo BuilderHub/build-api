@@ -1,0 +1,28 @@
+name: On Push
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  pull_request:
+    branches:
+      - main
+      - master
+
+jobs:
+  build-and-push:
+    permissions:
+      contents: read
+      packages: write
+    uses: builderhub/actions-internal/.github/workflows/build-push-image.yaml@main
+    with:
+      build-type: dockerfile
+      image-name: build-api
+      dockerfile: Dockerfile
+      context: .
+      buildx-args: --secret id=netrc,env=SECRET_SLOT_0
+    secrets:
+      registry-password: ${{ secrets.GITHUB_TOKEN }}
+      secret-slot-0: |
+        machine github.com login x-access-token password ${{ secrets.ORG_REPO_READ_ONLY }}
