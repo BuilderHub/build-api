@@ -30,4 +30,5 @@ local_resource(
     deps=['cmd/server', 'internal', 'api/gen', 'migrations'],
     resource_deps=['builderhub-rw'],
     auto_init=True,
+    allow_parallel=True,
 )
