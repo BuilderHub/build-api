@@ -4,11 +4,11 @@ import (
 	"path/filepath"
 
 	buildkitv1alpha1 "github.com/builderhub/build-operator/api/v1alpha1"
+	"k8s.io/apimachinery/pkg/runtime"
 	clientgoscheme "k8s.io/client-go/kubernetes/scheme"
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
 	"k8s.io/client-go/util/homedir"
-	"k8s.io/apimachinery/pkg/runtime"
 	ctrl "sigs.k8s.io/controller-runtime/pkg/client"
 )
 
@@ -40,6 +40,10 @@ func NewClient(kubeconfig string) (*Client, error) {
 func restConfig(kubeconfig string) (*rest.Config, error) {
 	if kubeconfig != "" {
 		return clientcmd.BuildConfigFromFlags("", kubeconfig)
+	}
+	// In-cluster config when running inside the cluster
+	if config, err := rest.InClusterConfig(); err == nil {
+		return config, nil
 	}
 	if home := homedir.HomeDir(); home != "" {
 		kubeconfig = filepath.Join(home, ".kube", "config")

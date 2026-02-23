@@ -11,9 +11,9 @@ import (
 
 	buildapiv1 "github.com/builderhub/build-api/api/gen/buildapi/v1"
 	"github.com/builderhub/build-api/internal/auth"
-	"github.com/builderhub/build-api/internal/buildapi"
 	"github.com/builderhub/build-api/internal/db"
 	"github.com/builderhub/build-api/internal/organizations"
+	"github.com/builderhub/build-api/internal/server"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
@@ -43,9 +43,15 @@ func main() {
 	}
 	defer pool.Close()
 
+	kubeconfig := getEnv("KUBECONFIG", "")
+	k8sClient, err := server.NewK8sClient(kubeconfig)
+	if err != nil {
+		sugar.Fatalf("create K8s client: %v", err)
+	}
+
 	jwt := auth.NewJWTManager(jwtSecret)
 	authSvc := auth.NewAuthService(pool, jwt, log.Sugar())
-	buildAPISvc := buildapi.NewServer()
+	buildAPISvc := server.NewBuildAPIService(k8sClient, pool, sugar)
 	orgSvc := organizations.NewService(pool, log.Sugar())
 
 	grpcServer := grpc.NewServer(
