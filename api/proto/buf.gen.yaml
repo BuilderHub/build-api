@@ -1,13 +1,12 @@
 version: v1
-# Run from repo root with: buf generate --path api/proto
-# Output goes to api/gen with same relative path (buildapi/v1/*.pb.go)
+# Run from api/proto; output to api/gen so path buildapi/v1/ is preserved (source_relative)
 plugins:
   - plugin: buf.build/protocolbuffers/go
-    out: api/gen
+    out: ../gen
     opt: paths=source_relative
   - plugin: buf.build/grpc/go
-    out: api/gen
+    out: ../gen
     opt: paths=source_relative
   - plugin: buf.build/grpc-ecosystem/gateway
-    out: api/gen
+    out: ../gen
     opt: paths=source_relative

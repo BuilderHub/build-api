@@ -9,7 +9,7 @@ import (
 )
 
 const (
-	AccessTokenExpiry  = 15 * time.Minute
+	AccessTokenExpiry  = 1 * time.Hour // long enough to survive refresh; refresh used for extended sessions
 	RefreshTokenExpiry = 7 * 24 * time.Hour
 	tokenTypeAccess    = "access"
 	tokenTypeRefresh   = "refresh"

@@ -31,6 +31,7 @@
           buildInputs = with pkgs; [
             go_1_25
             migrate-postgres
+            buf
             gnumake
             docker
           ];
@@ -39,6 +40,7 @@
             echo "BuilderHub Build API Dev Environment"
             echo ""
             echo "Run 'make build' to build the server"
+            echo "Run 'make generate' to regenerate Go/gRPC from .proto"
             echo "Run 'make migrate-up' to run migrations (requires DATABASE_URL)"
             echo "Or trigger build-api-migrate in Tilt UI"
           '';
