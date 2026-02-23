@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"strings"
 	"syscall"
 
 	buildapiv1 "github.com/builderhub/build-api/api/gen/buildapi/v1"
@@ -31,6 +32,7 @@ func main() {
 	jwtSecret := getEnv("JWT_SECRET", "dev-secret-change-in-production")
 	grpcAddr := getEnv("GRPC_ADDR", ":9090")
 	httpAddr := getEnv("HTTP_ADDR", ":8080")
+	corsOrigins := parseCORSOrigins(getEnv("CORS_ALLOWED_ORIGINS", "http://localhost:3000,http://localhost:3001,https://console.builder-hub.dev"))
 
 	pool, err := db.NewPool(ctx, databaseURL)
 	if err != nil {
@@ -77,11 +79,12 @@ func main() {
 	// Serve Swagger UI at /docs
 	swaggerHandler := http.StripPrefix("/docs/swagger/", http.FileServer(http.FS(buildapiv1.SwaggerJSON)))
 	rootMux := http.NewServeMux()
+	rootMux.HandleFunc("/health", func(w http.ResponseWriter, _ *http.Request) { w.WriteHeader(http.StatusOK) })
 	rootMux.Handle("/", gwMux)
 	rootMux.HandleFunc("/docs", serveSwaggerUI)
 	rootMux.Handle("/docs/swagger/", swaggerHandler)
 
-	httpServer := &http.Server{Addr: httpAddr, Handler: corsHandler(rootMux)}
+	httpServer := &http.Server{Addr: httpAddr, Handler: corsHandler(rootMux, corsOrigins)}
 	go func() {
 		sugar.Infof("HTTP gateway listening on %s", httpAddr)
 		if err := httpServer.ListenAndServe(); err != nil && err != http.ErrServerClosed {
@@ -138,9 +141,22 @@ func forwardAuthHeader(key string) (string, bool) {
 	}
 }
 
-func corsHandler(h http.Handler) http.Handler {
+func parseCORSOrigins(s string) map[string]bool {
+	allowed := make(map[string]bool)
+	for _, o := range strings.Split(s, ",") {
+		if o = strings.TrimSpace(o); o != "" {
+			allowed[o] = true
+		}
+	}
+	return allowed
+}
+
+func corsHandler(h http.Handler, allowedOrigins map[string]bool) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Access-Control-Allow-Origin", "*")
+		origin := r.Header.Get("Origin")
+		if origin != "" && allowedOrigins[origin] {
+			w.Header().Set("Access-Control-Allow-Origin", origin)
+		}
 		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
 		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
 		if r.Method == "OPTIONS" {

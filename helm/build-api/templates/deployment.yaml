@@ -5,75 +5,64 @@ metadata:
   labels:
     {{- include "build-api.labels" . | nindent 4 }}
 spec:
-  {{- if not .Values.autoscaling.enabled }}
   replicas: {{ .Values.replicaCount }}
-  {{- end }}
   selector:
     matchLabels:
       {{- include "build-api.selectorLabels" . | nindent 6 }}
   template:
     metadata:
-      annotations:
-        {{- with .Values.podAnnotations }}
-        {{- toYaml . | nindent 8 }}
-        {{- end }}
       labels:
         {{- include "build-api.labels" . | nindent 8 }}
-        {{- with .Values.podLabels }}
-        {{- toYaml . | nindent 8 }}
-        {{- end }}
     spec:
-      {{- with .Values.imagePullSecrets }}
-      imagePullSecrets:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-      serviceAccountName: {{ include "build-api.serviceAccountName" . }}
-      securityContext:
-        {{- toYaml .Values.podSecurityContext | nindent 8 }}
       containers:
-      - name: {{ .Chart.Name }}
-        securityContext:
-          {{- toYaml .Values.securityContext | nindent 12 }}
-        image: {{ include "build-api.image" . }}
-        imagePullPolicy: {{ .Values.image.pullPolicy }}
-        args:
-          - --grpc-addr=:{{ .Values.service.grpc.targetPort }}
-          - --http-addr=:{{ .Values.service.http.targetPort }}
-          - --kubeconfig-path=
-        ports:
-        - name: http
-          containerPort: {{ .Values.service.http.targetPort }}
-          protocol: TCP
-        - name: grpc
-          containerPort: {{ .Values.service.grpc.targetPort }}
-          protocol: TCP
-        {{- with .Values.env }}
-        env:
-          {{- toYaml . | nindent 12 }}
-        {{- end }}
-        {{- with .Values.envFrom }}
-        envFrom:
-          {{- toYaml . | nindent 12 }}
-        {{- end }}
-        {{- with .Values.livenessProbe }}
-        livenessProbe:
-          {{- toYaml . | nindent 12 }}
-        {{- end }}
-        {{- with .Values.readinessProbe }}
-        readinessProbe:
-          {{- toYaml . | nindent 12 }}
-        {{- end }}
-        resources:
-          {{- toYaml .Values.resources | nindent 12 }}
-      {{- with .Values.nodeSelector }}
-      nodeSelector:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-      {{- with .Values.affinity }}
-      affinity:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-      {{- with .Values.tolerations }}
-      tolerations:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
+        - name: build-api
+          image: {{ include "build-api.image" . }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+            - name: DATABASE_URL
+              value: {{ .Values.database.url | quote }}
+            - name: JWT_SECRET
+              value: {{ .Values.jwt.secret | quote }}
+            - name: CORS_ALLOWED_ORIGINS
+              value: {{ .Values.cors.allowedOrigins | quote }}
+            - name: HTTP_ADDR
+              value: ":{{ .Values.service.httpPort }}"
+            - name: GRPC_ADDR
+              value: ":{{ .Values.service.grpcPort }}"
+          ports:
+            - name: http
+              containerPort: {{ .Values.service.httpPort }}
+            - name: grpc
+              containerPort: {{ .Values.service.grpcPort }}
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 15
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "build-api.fullname" . }}
+  labels:
+    {{- include "build-api.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.service.type }}
+  selector:
+    {{- include "build-api.selectorLabels" . | nindent 4 }}
+  ports:
+    - name: http
+      port: {{ .Values.service.httpPort }}
+      targetPort: http
+    - name: grpc
+      port: {{ .Values.service.grpcPort }}
+      targetPort: grpc

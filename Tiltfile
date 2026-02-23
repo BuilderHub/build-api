@@ -1,8 +1,18 @@
 # Build API dev environment with Postgres
 # Credentials: builderhub / builderhub123 (dev only)
+# build-api runs as local binary; Postgres in cluster with port-forward
 
 # Postgres - plain Deployment, no operator
 k8s_yaml(read_file('local-k8s/postgres.yaml'))
+
+# Migrations - manual action (requires migrate CLI from nix dev shell)
+local_resource(
+    'build-api-migrate',
+    cmd='DATABASE_URL="postgres://builderhub:builderhub123@localhost:5432/builderhub?sslmode=disable" make migrate-up',
+    deps=['migrations'],
+    resource_deps=['postgres-port-forward'],
+    trigger_mode=TRIGGER_MODE_MANUAL,
+)
 
 # Port-forward Postgres for local build-api
 local_resource(
@@ -13,7 +23,7 @@ local_resource(
     allow_parallel=True,
 )
 
-# Build and run build-api - rebuilds on Go/file changes
+# Build and run build-api as local binary
 local_resource(
     'build-api',
     cmd='make build',

@@ -5,93 +5,30 @@ image:
   pullPolicy: IfNotPresent
   tag: ""
 
-imagePullSecrets: []
-nameOverride: ""
-fullnameOverride: ""
+migrate:
+  image:
+    repository: migrate/migrate
+    tag: v4.17.0
+    pullPolicy: IfNotPresent
 
-serviceAccount:
-  create: true
-  automount: true
-  annotations: {}
-  name: ""
+database:
+  url: "postgres://builderhub:builderhub123@postgres:5432/builderhub?sslmode=disable"
 
-rbac:
-  create: true
+jwt:
+  secret: "dev-secret-change-in-production"
 
-podAnnotations: {}
-podLabels: {}
-
-podSecurityContext:
-  runAsNonRoot: true
-  runAsUser: 65532
-  seccompProfile:
-    type: RuntimeDefault
-
-securityContext:
-  allowPrivilegeEscalation: false
-  capabilities:
-    drop:
-      - ALL
-  readOnlyRootFilesystem: false
+cors:
+  allowedOrigins: "http://localhost:3000,http://localhost:3001,https://console.builder-hub.dev"
 
 service:
   type: ClusterIP
-  annotations: {}
-  http:
-    port: 8080
-    targetPort: 8080
-  grpc:
-    port: 9090
-    targetPort: 9090
-
-ingress:
-  enabled: false
-  className: ""
-  annotations: {}
-  hosts:
-    - host: api.builderhub.example.com
-      paths:
-        - path: /
-          pathType: Prefix
-  tls: []
+  httpPort: 8090
+  grpcPort: 9090
 
 resources:
-  limits:
-    cpu: 500m
-    memory: 512Mi
   requests:
     cpu: 50m
-    memory: 128Mi
-
-livenessProbe:
-  httpGet:
-    path: /health
-    port: http
-  initialDelaySeconds: 10
-  periodSeconds: 10
-  timeoutSeconds: 5
-  failureThreshold: 3
-
-readinessProbe:
-  httpGet:
-    path: /ready
-    port: http
-  initialDelaySeconds: 5
-  periodSeconds: 5
-  timeoutSeconds: 3
-  failureThreshold: 3
-
-autoscaling:
-  enabled: false
-  minReplicas: 1
-  maxReplicas: 5
-  targetCPUUtilizationPercentage: 80
-  targetMemoryUtilizationPercentage: 80
-
-nodeSelector: {}
-tolerations: []
-affinity: {}
-
-env: []
-
-envFrom: []
+    memory: 64Mi
+  limits:
+    cpu: 500m
+    memory: 256Mi
