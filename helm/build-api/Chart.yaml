@@ -1,16 +1,12 @@
 apiVersion: v2
 name: build-api
-description: A Helm chart for BuilderHub Build API (gRPC + REST)
+description: Helm chart for BuilderHub Build API - gRPC/HTTP gateway
 type: application
 version: 0.1.0
 appVersion: "0.1.0"
 keywords:
   - builderhub
-  - build-api
-  - buildkit
+  - api
   - grpc
-home: https://github.com/builderhub/build-api
-sources:
-  - https://github.com/builderhub/build-api
 maintainers:
   - name: BuilderHub Team

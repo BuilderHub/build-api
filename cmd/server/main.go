@@ -2,118 +2,167 @@ package main
 
 import (
 	"context"
-	"flag"
-	"html/template"
 	"net"
 	"net/http"
+	"os"
 	"os/signal"
+	"strings"
 	"syscall"
 
 	buildapiv1 "github.com/builderhub/build-api/api/gen/buildapi/v1"
-	"github.com/builderhub/build-api/internal/server"
+	"github.com/builderhub/build-api/internal/auth"
+	"github.com/builderhub/build-api/internal/buildapi"
+	"github.com/builderhub/build-api/internal/db"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/reflection"
 )
 
-const swaggerUIHTML = `<!DOCTYPE html>
-<html>
-<head>
-  <title>BuildAPI - Swagger UI</title>
-  <link rel="stylesheet" href="https://unpkg.com/swagger-ui-dist@5/swagger-ui.css">
-</head>
-<body>
-  <div id="swagger-ui"></div>
-  <script src="https://unpkg.com/swagger-ui-dist@5/swagger-ui-bundle.js"></script>
-  <script>
-    SwaggerUIBundle({
-      url: "/openapi.json",
-      dom_id: "#swagger-ui"
-    });
-  </script>
-</body>
-</html>
-`
-
-func swaggerUIHandler() http.HandlerFunc {
-	tmpl := template.Must(template.New("swagger").Parse(swaggerUIHTML))
-	return func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", "text/html; charset=utf-8")
-		_ = tmpl.Execute(w, nil)
-	}
-}
-
 func main() {
-	grpcAddr := flag.String("grpc-addr", ":9090", "gRPC listen address")
-	httpAddr := flag.String("http-addr", ":8080", "HTTP health listen address")
-	kubeconfig := flag.String("kubeconfig-path", "", "Path to kubeconfig (empty for in-cluster or KUBECONFIG env)")
-	flag.Parse()
-
-	log, err := zap.NewProduction()
-	if err != nil {
-		panic(err)
-	}
+	log := newLogger()
 	defer log.Sync()
 	sugar := log.Sugar()
 
-	ctx, cancel := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
-	defer cancel()
+	ctx := context.Background()
 
-	k8sClient, err := server.NewK8sClient(*kubeconfig)
+	databaseURL := getEnv("DATABASE_URL", "postgres://localhost/builderhub?sslmode=disable")
+	jwtSecret := getEnv("JWT_SECRET", "dev-secret-change-in-production")
+	grpcAddr := getEnv("GRPC_ADDR", ":9090")
+	httpAddr := getEnv("HTTP_ADDR", ":8080")
+	corsOrigins := parseCORSOrigins(getEnv("CORS_ALLOWED_ORIGINS", "http://localhost:3000,http://localhost:3001,https://console.builder-hub.dev"))
+
+	pool, err := db.NewPool(ctx, databaseURL)
 	if err != nil {
-		log.Fatal("failed to create k8s client", zap.Error(err))
+		sugar.Fatalf("connect to database: %v", err)
 	}
+	defer pool.Close()
 
-	svc := server.NewBuildAPIService(k8sClient, sugar)
-	srv := grpc.NewServer()
-	buildapiv1.RegisterBuildAPIServer(srv, svc)
-	reflection.Register(srv)
+	jwt := auth.NewJWTManager(jwtSecret)
+	authSvc := auth.NewAuthService(pool, jwt, log.Sugar())
+	buildAPISvc := buildapi.NewServer()
 
-	lis, err := net.Listen("tcp", *grpcAddr)
+	grpcServer := grpc.NewServer(
+		grpc.UnaryInterceptor(auth.UnaryServerInterceptor(jwt)),
+		grpc.StreamInterceptor(auth.StreamServerInterceptor(jwt)),
+	)
+	buildapiv1.RegisterAuthServiceServer(grpcServer, authSvc)
+	buildapiv1.RegisterBuildAPIServer(grpcServer, buildAPISvc)
+	reflection.Register(grpcServer)
+
+	lis, err := net.Listen("tcp", grpcAddr)
 	if err != nil {
-		log.Fatal("failed to listen", zap.String("addr", *grpcAddr), zap.Error(err))
+		sugar.Fatalf("listen gRPC: %v", err)
 	}
+	defer lis.Close()
 
 	go func() {
-		log.Info("gRPC listening", zap.String("addr", *grpcAddr))
-		if err := srv.Serve(lis); err != nil && err != grpc.ErrServerStopped {
-			log.Error("gRPC serve error", zap.Error(err))
+		sugar.Infof("gRPC server listening on %s", grpcAddr)
+		if err := grpcServer.Serve(lis); err != nil && err != grpc.ErrServerStopped {
+			sugar.Errorf("gRPC server: %v", err)
 		}
 	}()
 
-	mux := http.NewServeMux()
-	mux.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusOK)
-		_, _ = w.Write([]byte("ok"))
-	})
-	mux.HandleFunc("/ready", func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusOK)
-		_, _ = w.Write([]byte("ok"))
-	})
-
-	gwMux := runtime.NewServeMux()
-	if err := buildapiv1.RegisterBuildAPIHandlerServer(context.Background(), gwMux, svc); err != nil {
-		log.Fatal("failed to register gateway", zap.Error(err))
+	gwMux := runtime.NewServeMux(
+		runtime.WithIncomingHeaderMatcher(forwardAuthHeader),
+	)
+	opts := []grpc.DialOption{grpc.WithTransportCredentials(insecure.NewCredentials())}
+	if err := buildapiv1.RegisterAuthServiceHandlerFromEndpoint(ctx, gwMux, grpcAddr, opts); err != nil {
+		sugar.Fatalf("register auth gateway: %v", err)
 	}
-	mux.Handle("/v1/", gwMux)
-	mux.HandleFunc("/openapi.json", func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", "application/json")
-		_, _ = w.Write(buildapiv1.OpenAPISpec)
-	})
-	mux.HandleFunc("/docs", swaggerUIHandler())
-	mux.HandleFunc("/docs/", swaggerUIHandler())
-	httpSrv := &http.Server{Addr: *httpAddr, Handler: mux}
+	if err := buildapiv1.RegisterBuildAPIHandlerFromEndpoint(ctx, gwMux, grpcAddr, opts); err != nil {
+		sugar.Fatalf("register buildapi gateway: %v", err)
+	}
+
+	// Serve Swagger UI at /docs
+	swaggerHandler := http.StripPrefix("/docs/swagger/", http.FileServer(http.FS(buildapiv1.SwaggerJSON)))
+	rootMux := http.NewServeMux()
+	rootMux.HandleFunc("/health", func(w http.ResponseWriter, _ *http.Request) { w.WriteHeader(http.StatusOK) })
+	rootMux.Handle("/", gwMux)
+	rootMux.HandleFunc("/docs", serveSwaggerUI)
+	rootMux.Handle("/docs/swagger/", swaggerHandler)
+
+	httpServer := &http.Server{Addr: httpAddr, Handler: corsHandler(rootMux, corsOrigins)}
 	go func() {
-		log.Info("HTTP health listening", zap.String("addr", *httpAddr))
-		if err := httpSrv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-			log.Error("HTTP serve error", zap.Error(err))
+		sugar.Infof("HTTP gateway listening on %s", httpAddr)
+		if err := httpServer.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			sugar.Errorf("HTTP server: %v", err)
 		}
 	}()
 
-	log.Info("Swagger UI at /docs, OpenAPI spec at /openapi.json")
-	<-ctx.Done()
-	log.Info("shutting down...")
-	srv.GracefulStop()
-	_ = httpSrv.Shutdown(context.Background())
+	stop := make(chan os.Signal, 1)
+	signal.Notify(stop, syscall.SIGINT, syscall.SIGTERM)
+	<-stop
+
+	grpcServer.GracefulStop()
+	httpServer.Shutdown(context.Background())
+}
+
+func getEnv(key, def string) string {
+	if v := os.Getenv(key); v != "" {
+		return v
+	}
+	return def
+}
+
+func newLogger() *zap.Logger {
+	cfg := zap.NewDevelopmentConfig()
+	cfg.Level = zap.NewAtomicLevelAt(zapcore.InfoLevel)
+	cfg.EncoderConfig.TimeKey = ""
+	log, _ := cfg.Build()
+	return log
+}
+
+func serveSwaggerUI(w http.ResponseWriter, r *http.Request) {
+	if r.URL.Path != "/docs" && r.URL.Path != "/docs/" {
+		http.NotFound(w, r)
+		return
+	}
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	w.Write([]byte(`<!DOCTYPE html>
+<html>
+<head><title>Build API</title>
+<link rel="stylesheet" href="https://unpkg.com/swagger-ui-dist@5/swagger-ui.css"></head>
+<body><div id="swagger-ui"></div>
+<script src="https://unpkg.com/swagger-ui-dist@5/swagger-ui-bundle.js"></script>
+<script>SwaggerUIBundle({url:"/docs/swagger/buildapi.swagger.json",dom_id:"#swagger-ui"});</script>
+</body></html>`))
+}
+
+// forwardAuthHeader forwards Authorization to gRPC metadata.
+func forwardAuthHeader(key string) (string, bool) {
+	switch key {
+	case "Authorization", "authorization":
+		return "authorization", true
+	default:
+		return runtime.DefaultHeaderMatcher(key)
+	}
+}
+
+func parseCORSOrigins(s string) map[string]bool {
+	allowed := make(map[string]bool)
+	for _, o := range strings.Split(s, ",") {
+		if o = strings.TrimSpace(o); o != "" {
+			allowed[o] = true
+		}
+	}
+	return allowed
+}
+
+func corsHandler(h http.Handler, allowedOrigins map[string]bool) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		origin := r.Header.Get("Origin")
+		if origin != "" && allowedOrigins[origin] {
+			w.Header().Set("Access-Control-Allow-Origin", origin)
+		}
+		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
+		if r.Method == "OPTIONS" {
+			w.WriteHeader(http.StatusNoContent)
+			return
+		}
+		h.ServeHTTP(w, r)
+	})
 }
