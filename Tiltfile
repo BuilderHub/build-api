@@ -1,34 +1,25 @@
-# Build API dev environment with CNPG (CloudNativePG) PostgreSQL
-# Hardcoded credentials: builderhub / builderhub123 (dev only)
+# Build API dev environment with Postgres
+# Credentials: builderhub / builderhub123 (dev only)
 
-# CNPG operator
-load('ext://helm_remote', 'helm_remote')
-helm_remote(
-    'cloudnative-pg',
-    repo_url='https://cloudnative-pg.github.io/charts',
-    repo_name='cloudnative-pg',
-    namespace='cnpg-system',
-    create_namespace=True,
-)
-
-# CNPG cluster with hardcoded dev credentials (builderhub / builderhub123)
-k8s_yaml([
-    read_file('local-k8s/cnpg-secret.yaml'),
-    read_file('local-k8s/cnpg-cluster.yaml'),
-])
+# Postgres - plain Deployment, no operator
+k8s_yaml(read_file('local-k8s/postgres.yaml'))
 
 # Port-forward Postgres for local build-api
-k8s_resource(
-    'builderhub-rw',
-    port_forwards=['5432:5432'],
+local_resource(
+    'postgres-port-forward',
+    serve_cmd='kubectl wait --for=condition=ready pod -l app=postgres --timeout=120s && kubectl port-forward svc/postgres 5432:5432',
+    resource_deps=['postgres'],
+    readiness_probe=probe(period_secs=2, tcp_socket=tcp_socket_action(port=5432)),
+    allow_parallel=True,
 )
 
-# Build and run build-api locally (run "make migrate-up" after postgres is ready)
+# Build and run build-api - rebuilds on Go/file changes
 local_resource(
     'build-api',
-    cmd='make build && DATABASE_URL="postgres://builderhub:builderhub123@localhost:5432/builderhub?sslmode=disable" JWT_SECRET="dev-secret-change-in-production" ./bin/server',
+    cmd='make build',
+    serve_cmd='HTTP_ADDR=:8090 DATABASE_URL="postgres://builderhub:builderhub123@localhost:5432/builderhub?sslmode=disable" JWT_SECRET="dev-secret-change-in-production" ./bin/server',
     deps=['cmd/server', 'internal', 'api/gen', 'migrations'],
-    resource_deps=['builderhub-rw'],
-    auto_init=True,
+    ignore=['bin'],
+    resource_deps=['postgres-port-forward'],
     allow_parallel=True,
 )
