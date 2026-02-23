@@ -8,7 +8,7 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/builderhub/build-api/api/gen/buildapi/v1"
+	buildapiv1 "github.com/builderhub/build-api/api/gen/buildapi/v1"
 	"github.com/builderhub/build-api/internal/auth"
 	"github.com/builderhub/build-api/internal/buildapi"
 	"github.com/builderhub/build-api/internal/db"
@@ -74,7 +74,14 @@ func main() {
 		sugar.Fatalf("register buildapi gateway: %v", err)
 	}
 
-	httpServer := &http.Server{Addr: httpAddr, Handler: corsHandler(gwMux)}
+	// Serve Swagger UI at /docs
+	swaggerHandler := http.StripPrefix("/docs/swagger/", http.FileServer(http.FS(buildapiv1.SwaggerJSON)))
+	rootMux := http.NewServeMux()
+	rootMux.Handle("/", gwMux)
+	rootMux.HandleFunc("/docs", serveSwaggerUI)
+	rootMux.Handle("/docs/swagger/", swaggerHandler)
+
+	httpServer := &http.Server{Addr: httpAddr, Handler: corsHandler(rootMux)}
 	go func() {
 		sugar.Infof("HTTP gateway listening on %s", httpAddr)
 		if err := httpServer.ListenAndServe(); err != nil && err != http.ErrServerClosed {
@@ -103,6 +110,22 @@ func newLogger() *zap.Logger {
 	cfg.EncoderConfig.TimeKey = ""
 	log, _ := cfg.Build()
 	return log
+}
+
+func serveSwaggerUI(w http.ResponseWriter, r *http.Request) {
+	if r.URL.Path != "/docs" && r.URL.Path != "/docs/" {
+		http.NotFound(w, r)
+		return
+	}
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	w.Write([]byte(`<!DOCTYPE html>
+<html>
+<head><title>Build API</title>
+<link rel="stylesheet" href="https://unpkg.com/swagger-ui-dist@5/swagger-ui.css"></head>
+<body><div id="swagger-ui"></div>
+<script src="https://unpkg.com/swagger-ui-dist@5/swagger-ui-bundle.js"></script>
+<script>SwaggerUIBundle({url:"/docs/swagger/buildapi.swagger.json",dom_id:"#swagger-ui"});</script>
+</body></html>`))
 }
 
 // forwardAuthHeader forwards Authorization to gRPC metadata.
