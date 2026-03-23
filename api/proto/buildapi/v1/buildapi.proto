@@ -39,7 +39,7 @@ service BuildAPI {
     option (google.api.http) = {delete: "/v1/namespaces/{namespace}/builders/{name}"};
   }
 
-  // WakeBuilder patches builder-hub.dev/last-used for sleepy builders (wakes them up).
+  // WakeBuilder patches builder.builder-hub.dev/last-used for sleepy builders (wakes them up).
   rpc WakeBuilder(WakeBuilderRequest) returns (WakeBuilderResponse) {
     option (google.api.http) = {
       post: "/v1/namespaces/{namespace}/builders/{name}/wake"

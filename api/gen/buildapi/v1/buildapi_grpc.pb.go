@@ -44,7 +44,7 @@ type BuildAPIClient interface {
 	UpdateBuilder(ctx context.Context, in *UpdateBuilderRequest, opts ...grpc.CallOption) (*UpdateBuilderResponse, error)
 	// DeleteBuilder deletes a BuildkitBuilder CR and its resources.
 	DeleteBuilder(ctx context.Context, in *DeleteBuilderRequest, opts ...grpc.CallOption) (*DeleteBuilderResponse, error)
-	// WakeBuilder patches builder-hub.dev/last-used for sleepy builders (wakes them up).
+	// WakeBuilder patches builder.builder-hub.dev/last-used for sleepy builders (wakes them up).
 	WakeBuilder(ctx context.Context, in *WakeBuilderRequest, opts ...grpc.CallOption) (*WakeBuilderResponse, error)
 	// HealthCheck for liveness/readiness.
 	HealthCheck(ctx context.Context, in *HealthCheckRequest, opts ...grpc.CallOption) (*HealthCheckResponse, error)
@@ -144,7 +144,7 @@ type BuildAPIServer interface {
 	UpdateBuilder(context.Context, *UpdateBuilderRequest) (*UpdateBuilderResponse, error)
 	// DeleteBuilder deletes a BuildkitBuilder CR and its resources.
 	DeleteBuilder(context.Context, *DeleteBuilderRequest) (*DeleteBuilderResponse, error)
-	// WakeBuilder patches builder-hub.dev/last-used for sleepy builders (wakes them up).
+	// WakeBuilder patches builder.builder-hub.dev/last-used for sleepy builders (wakes them up).
 	WakeBuilder(context.Context, *WakeBuilderRequest) (*WakeBuilderResponse, error)
 	// HealthCheck for liveness/readiness.
 	HealthCheck(context.Context, *HealthCheckRequest) (*HealthCheckResponse, error)

@@ -249,6 +249,64 @@ func (s *Service) UpdateOrganization(ctx context.Context, req *buildapiv1.Update
 	return &buildapiv1.UpdateOrganizationResponse{Organization: resp.Organization}, nil
 }
 
+// ListOrganizationMembers returns users in the organization; caller must be a member.
+func (s *Service) ListOrganizationMembers(ctx context.Context, req *buildapiv1.ListOrganizationMembersRequest) (*buildapiv1.ListOrganizationMembersResponse, error) {
+	userID := auth.UserIDFromContext(ctx)
+	if userID == "" {
+		return nil, status.Error(codes.Unauthenticated, "not authenticated")
+	}
+	orgID := strings.TrimSpace(req.GetOrganizationId())
+	if orgID == "" {
+		return nil, status.Error(codes.InvalidArgument, "organization_id is required")
+	}
+
+	var member bool
+	err := s.pool.QueryRow(ctx, `
+		SELECT EXISTS(
+			SELECT 1 FROM organization_members WHERE user_id = $1 AND organization_id = $2
+		)
+	`, userID, orgID).Scan(&member)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "check membership: %v", err)
+	}
+	if !member {
+		return nil, status.Error(codes.PermissionDenied, "not a member of this organization")
+	}
+
+	rows, err := s.pool.Query(ctx, `
+		SELECT u.id::text, u.email, u.name, m.role, EXTRACT(EPOCH FROM m.joined_at)::bigint
+		FROM organization_members m
+		INNER JOIN users u ON u.id = m.user_id
+		WHERE m.organization_id = $1
+		ORDER BY m.joined_at
+	`, orgID)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "list members: %v", err)
+	}
+	defer rows.Close()
+
+	var members []*buildapiv1.OrganizationMember
+	for rows.Next() {
+		var uid, email, name, role string
+		var joinedAt int64
+		if err := rows.Scan(&uid, &email, &name, &role, &joinedAt); err != nil {
+			return nil, status.Errorf(codes.Internal, "scan member: %v", err)
+		}
+		members = append(members, &buildapiv1.OrganizationMember{
+			UserId:   uid,
+			Email:    email,
+			Name:     name,
+			Role:     role,
+			JoinedAt: joinedAt,
+		})
+	}
+	if err := rows.Err(); err != nil {
+		return nil, status.Errorf(codes.Internal, "iter members: %v", err)
+	}
+
+	return &buildapiv1.ListOrganizationMembersResponse{Members: members}, nil
+}
+
 func isUniqueViolation(err error) bool {
 	var pgErr *pgconn.PgError
 	return err != nil && errors.As(err, &pgErr) && pgErr.Code == "23505"

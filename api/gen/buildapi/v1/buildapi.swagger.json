@@ -146,7 +146,7 @@
     },
     "/v1/namespaces/{namespace}/builders/{name}/wake": {
       "post": {
-        "summary": "WakeBuilder patches builder-hub.dev/last-used for sleepy builders (wakes them up).",
+        "summary": "WakeBuilder patches builder.builder-hub.dev/last-used for sleepy builders (wakes them up).",
         "operationId": "BuildAPI_WakeBuilder",
         "responses": {
           "200": {

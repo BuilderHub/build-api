@@ -33,6 +33,11 @@ service OrganizationService {
       body: "*"
     };
   }
+
+  // ListOrganizationMembers returns members of an organization (caller must be a member).
+  rpc ListOrganizationMembers(ListOrganizationMembersRequest) returns (ListOrganizationMembersResponse) {
+    option (google.api.http) = { get: "/v1/organizations/{organization_id}/members" };
+  }
 }
 
 message ListOrganizationsRequest {}
@@ -79,4 +84,20 @@ message Organization {
   int32 builder_count = 6;
   int64 total_minutes = 7;
   int64 monthly_minutes = 8;
+}
+
+message ListOrganizationMembersRequest {
+  string organization_id = 1;
+}
+
+message ListOrganizationMembersResponse {
+  repeated OrganizationMember members = 1;
+}
+
+message OrganizationMember {
+  string user_id = 1;
+  string email = 2;
+  string name = 3;
+  string role = 4;
+  int64 joined_at = 5;
 }

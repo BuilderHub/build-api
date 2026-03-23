@@ -18,7 +18,7 @@ rules:
   - patch
   - update
 - apiGroups:
-  - builder-hub.dev
+  - builder-template.builder-hub.dev
   resources:
   - buildkitbuildertemplates
   verbs:

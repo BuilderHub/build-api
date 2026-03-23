@@ -19,10 +19,11 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	OrganizationService_ListOrganizations_FullMethodName  = "/buildapi.v1.OrganizationService/ListOrganizations"
-	OrganizationService_GetOrganization_FullMethodName    = "/buildapi.v1.OrganizationService/GetOrganization"
-	OrganizationService_CreateOrganization_FullMethodName = "/buildapi.v1.OrganizationService/CreateOrganization"
-	OrganizationService_UpdateOrganization_FullMethodName = "/buildapi.v1.OrganizationService/UpdateOrganization"
+	OrganizationService_ListOrganizations_FullMethodName       = "/buildapi.v1.OrganizationService/ListOrganizations"
+	OrganizationService_GetOrganization_FullMethodName         = "/buildapi.v1.OrganizationService/GetOrganization"
+	OrganizationService_CreateOrganization_FullMethodName      = "/buildapi.v1.OrganizationService/CreateOrganization"
+	OrganizationService_UpdateOrganization_FullMethodName      = "/buildapi.v1.OrganizationService/UpdateOrganization"
+	OrganizationService_ListOrganizationMembers_FullMethodName = "/buildapi.v1.OrganizationService/ListOrganizationMembers"
 )
 
 // OrganizationServiceClient is the client API for OrganizationService service.
@@ -39,6 +40,8 @@ type OrganizationServiceClient interface {
 	CreateOrganization(ctx context.Context, in *CreateOrganizationRequest, opts ...grpc.CallOption) (*CreateOrganizationResponse, error)
 	// UpdateOrganization updates organization name, slug, or plan.
 	UpdateOrganization(ctx context.Context, in *UpdateOrganizationRequest, opts ...grpc.CallOption) (*UpdateOrganizationResponse, error)
+	// ListOrganizationMembers returns members of an organization (caller must be a member).
+	ListOrganizationMembers(ctx context.Context, in *ListOrganizationMembersRequest, opts ...grpc.CallOption) (*ListOrganizationMembersResponse, error)
 }
 
 type organizationServiceClient struct {
@@ -89,6 +92,16 @@ func (c *organizationServiceClient) UpdateOrganization(ctx context.Context, in *
 	return out, nil
 }
 
+func (c *organizationServiceClient) ListOrganizationMembers(ctx context.Context, in *ListOrganizationMembersRequest, opts ...grpc.CallOption) (*ListOrganizationMembersResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ListOrganizationMembersResponse)
+	err := c.cc.Invoke(ctx, OrganizationService_ListOrganizationMembers_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // OrganizationServiceServer is the server API for OrganizationService service.
 // All implementations must embed UnimplementedOrganizationServiceServer
 // for forward compatibility.
@@ -103,6 +116,8 @@ type OrganizationServiceServer interface {
 	CreateOrganization(context.Context, *CreateOrganizationRequest) (*CreateOrganizationResponse, error)
 	// UpdateOrganization updates organization name, slug, or plan.
 	UpdateOrganization(context.Context, *UpdateOrganizationRequest) (*UpdateOrganizationResponse, error)
+	// ListOrganizationMembers returns members of an organization (caller must be a member).
+	ListOrganizationMembers(context.Context, *ListOrganizationMembersRequest) (*ListOrganizationMembersResponse, error)
 	mustEmbedUnimplementedOrganizationServiceServer()
 }
 
@@ -124,6 +139,9 @@ func (UnimplementedOrganizationServiceServer) CreateOrganization(context.Context
 }
 func (UnimplementedOrganizationServiceServer) UpdateOrganization(context.Context, *UpdateOrganizationRequest) (*UpdateOrganizationResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method UpdateOrganization not implemented")
+}
+func (UnimplementedOrganizationServiceServer) ListOrganizationMembers(context.Context, *ListOrganizationMembersRequest) (*ListOrganizationMembersResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ListOrganizationMembers not implemented")
 }
 func (UnimplementedOrganizationServiceServer) mustEmbedUnimplementedOrganizationServiceServer() {}
 func (UnimplementedOrganizationServiceServer) testEmbeddedByValue()                             {}
@@ -218,6 +236,24 @@ func _OrganizationService_UpdateOrganization_Handler(srv interface{}, ctx contex
 	return interceptor(ctx, in, info, handler)
 }
 
+func _OrganizationService_ListOrganizationMembers_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListOrganizationMembersRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(OrganizationServiceServer).ListOrganizationMembers(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: OrganizationService_ListOrganizationMembers_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(OrganizationServiceServer).ListOrganizationMembers(ctx, req.(*ListOrganizationMembersRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // OrganizationService_ServiceDesc is the grpc.ServiceDesc for OrganizationService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -240,6 +276,10 @@ var OrganizationService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "UpdateOrganization",
 			Handler:    _OrganizationService_UpdateOrganization_Handler,
+		},
+		{
+			MethodName: "ListOrganizationMembers",
+			Handler:    _OrganizationService_ListOrganizationMembers_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

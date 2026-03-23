@@ -16,7 +16,7 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-const lastUsedAnnotation = "builder-hub.dev/last-used"
+const lastUsedAnnotation = "builder.builder-hub.dev/last-used"
 
 // BuildAPIService implements buildapiv1.BuildAPIServer.
 // Logger is a minimal interface for structured logging.
@@ -177,7 +177,7 @@ func (s *BuildAPIService) DeleteBuilder(ctx context.Context, req *buildapiv1.Del
 	return &buildapiv1.DeleteBuilderResponse{}, nil
 }
 
-// WakeBuilder patches builder-hub.dev/last-used for sleepy builders.
+// WakeBuilder patches builder.builder-hub.dev/last-used for sleepy builders.
 func (s *BuildAPIService) WakeBuilder(ctx context.Context, req *buildapiv1.WakeBuilderRequest) (*buildapiv1.WakeBuilderResponse, error) {
 	if err := s.ensureOrgMember(ctx, req.Namespace); err != nil {
 		return nil, err
