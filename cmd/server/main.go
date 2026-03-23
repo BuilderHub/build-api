@@ -11,14 +11,17 @@ import (
 
 	buildapiv1 "github.com/builderhub/build-api/api/gen/buildapi/v1"
 	"github.com/builderhub/build-api/internal/auth"
-	"github.com/builderhub/build-api/internal/buildapi"
 	"github.com/builderhub/build-api/internal/db"
+	"github.com/builderhub/build-api/internal/organizations"
+	"github.com/builderhub/build-api/internal/server"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
+	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/reflection"
+	"google.golang.org/protobuf/proto"
 )
 
 func main() {
@@ -40,16 +43,24 @@ func main() {
 	}
 	defer pool.Close()
 
+	kubeconfig := getEnv("KUBECONFIG", "")
+	k8sClient, err := server.NewK8sClient(kubeconfig)
+	if err != nil {
+		sugar.Fatalf("create K8s client: %v", err)
+	}
+
 	jwt := auth.NewJWTManager(jwtSecret)
 	authSvc := auth.NewAuthService(pool, jwt, log.Sugar())
-	buildAPISvc := buildapi.NewServer()
+	buildAPISvc := server.NewBuildAPIService(k8sClient, pool, sugar)
+	orgSvc := organizations.NewService(pool, log.Sugar())
 
 	grpcServer := grpc.NewServer(
-		grpc.UnaryInterceptor(auth.UnaryServerInterceptor(jwt)),
-		grpc.StreamInterceptor(auth.StreamServerInterceptor(jwt)),
+		grpc.UnaryInterceptor(auth.UnaryServerInterceptor(jwt, sugar)),
+		grpc.StreamInterceptor(auth.StreamServerInterceptor(jwt, sugar)),
 	)
 	buildapiv1.RegisterAuthServiceServer(grpcServer, authSvc)
 	buildapiv1.RegisterBuildAPIServer(grpcServer, buildAPISvc)
+	buildapiv1.RegisterOrganizationServiceServer(grpcServer, orgSvc)
 	reflection.Register(grpcServer)
 
 	lis, err := net.Listen("tcp", grpcAddr)
@@ -67,6 +78,8 @@ func main() {
 
 	gwMux := runtime.NewServeMux(
 		runtime.WithIncomingHeaderMatcher(forwardAuthHeader),
+		runtime.WithMetadata(authMetadataAnnotator),
+		runtime.WithForwardResponseOption(setAuthCookieForwardResponseOption()),
 	)
 	opts := []grpc.DialOption{grpc.WithTransportCredentials(insecure.NewCredentials())}
 	if err := buildapiv1.RegisterAuthServiceHandlerFromEndpoint(ctx, gwMux, grpcAddr, opts); err != nil {
@@ -75,14 +88,14 @@ func main() {
 	if err := buildapiv1.RegisterBuildAPIHandlerFromEndpoint(ctx, gwMux, grpcAddr, opts); err != nil {
 		sugar.Fatalf("register buildapi gateway: %v", err)
 	}
+	if err := buildapiv1.RegisterOrganizationServiceHandlerFromEndpoint(ctx, gwMux, grpcAddr, opts); err != nil {
+		sugar.Fatalf("register organization gateway: %v", err)
+	}
 
-	// Serve Swagger UI at /docs
-	swaggerHandler := http.StripPrefix("/docs/swagger/", http.FileServer(http.FS(buildapiv1.SwaggerJSON)))
 	rootMux := http.NewServeMux()
 	rootMux.HandleFunc("/health", func(w http.ResponseWriter, _ *http.Request) { w.WriteHeader(http.StatusOK) })
+	rootMux.HandleFunc("/v1/auth/logout", logoutHandler(accessTokenCookieName))
 	rootMux.Handle("/", gwMux)
-	rootMux.HandleFunc("/docs", serveSwaggerUI)
-	rootMux.Handle("/docs/swagger/", swaggerHandler)
 
 	httpServer := &http.Server{Addr: httpAddr, Handler: corsHandler(rootMux, corsOrigins)}
 	go func() {
@@ -115,20 +128,46 @@ func newLogger() *zap.Logger {
 	return log
 }
 
-func serveSwaggerUI(w http.ResponseWriter, r *http.Request) {
-	if r.URL.Path != "/docs" && r.URL.Path != "/docs/" {
-		http.NotFound(w, r)
-		return
+func logoutHandler(cookieName string) http.HandlerFunc {
+	return func(w http.ResponseWriter, _ *http.Request) {
+		http.SetCookie(w, &http.Cookie{
+			Name:     cookieName,
+			Value:    "",
+			Path:     "/",
+			MaxAge:   -1,
+			HttpOnly: true,
+			SameSite: http.SameSiteStrictMode,
+		})
+		w.WriteHeader(http.StatusNoContent)
 	}
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	w.Write([]byte(`<!DOCTYPE html>
-<html>
-<head><title>Build API</title>
-<link rel="stylesheet" href="https://unpkg.com/swagger-ui-dist@5/swagger-ui.css"></head>
-<body><div id="swagger-ui"></div>
-<script src="https://unpkg.com/swagger-ui-dist@5/swagger-ui-bundle.js"></script>
-<script>SwaggerUIBundle({url:"/docs/swagger/buildapi.swagger.json",dom_id:"#swagger-ui"});</script>
-</body></html>`))
+}
+
+// setAuthCookieForwardResponseOption sets the access token cookie on login/register/refresh responses
+// so the browser sends it automatically (proxies usually forward Cookie).
+func setAuthCookieForwardResponseOption() func(context.Context, http.ResponseWriter, proto.Message) error {
+	return func(_ context.Context, w http.ResponseWriter, resp proto.Message) error {
+		var token string
+		switch m := resp.(type) {
+		case *buildapiv1.LoginResponse:
+			token = m.GetAccessToken()
+		case *buildapiv1.RegisterResponse:
+			token = m.GetAccessToken()
+		case *buildapiv1.RefreshTokenResponse:
+			token = m.GetAccessToken()
+		}
+		if token == "" {
+			return nil
+		}
+		http.SetCookie(w, &http.Cookie{
+			Name:     accessTokenCookieName,
+			Value:    token,
+			Path:     "/",
+			MaxAge:   3600, // 1 hour
+			HttpOnly: true,
+			SameSite: http.SameSiteStrictMode,
+		})
+		return nil
+	}
 }
 
 // forwardAuthHeader forwards Authorization to gRPC metadata.
@@ -139,6 +178,27 @@ func forwardAuthHeader(key string) (string, bool) {
 	default:
 		return runtime.DefaultHeaderMatcher(key)
 	}
+}
+
+const accessTokenCookieName = "builderhub_access_token"
+
+// authMetadataAnnotator copies the auth token into gRPC metadata (Authorization header or cookie).
+func authMetadataAnnotator(ctx context.Context, req *http.Request) metadata.MD {
+	auth := req.Header.Get("Authorization")
+	if auth == "" {
+		if c, err := req.Cookie(accessTokenCookieName); err == nil && strings.TrimSpace(c.Value) != "" {
+			t := strings.TrimSpace(c.Value)
+			if !strings.HasPrefix(t, "Bearer ") {
+				auth = "Bearer " + t
+			} else {
+				auth = t
+			}
+		}
+	}
+	if auth != "" {
+		return metadata.Pairs("authorization", auth)
+	}
+	return nil
 }
 
 func parseCORSOrigins(s string) map[string]bool {
@@ -156,8 +216,9 @@ func corsHandler(h http.Handler, allowedOrigins map[string]bool) http.Handler {
 		origin := r.Header.Get("Origin")
 		if origin != "" && allowedOrigins[origin] {
 			w.Header().Set("Access-Control-Allow-Origin", origin)
+			w.Header().Set("Access-Control-Allow-Credentials", "true")
 		}
-		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS")
 		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
 		if r.Method == "OPTIONS" {
 			w.WriteHeader(http.StatusNoContent)

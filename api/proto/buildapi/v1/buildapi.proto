@@ -26,7 +26,20 @@ service BuildAPI {
     };
   }
 
-  // WakeBuilder patches builder-hub.dev/last-used for sleepy builders (wakes them up).
+  // UpdateBuilder updates an existing BuildkitBuilder CR (spec only; name immutable).
+  rpc UpdateBuilder(UpdateBuilderRequest) returns (UpdateBuilderResponse) {
+    option (google.api.http) = {
+      patch: "/v1/namespaces/{namespace}/builders/{name}"
+      body: "*"
+    };
+  }
+
+  // DeleteBuilder deletes a BuildkitBuilder CR and its resources.
+  rpc DeleteBuilder(DeleteBuilderRequest) returns (DeleteBuilderResponse) {
+    option (google.api.http) = {delete: "/v1/namespaces/{namespace}/builders/{name}"};
+  }
+
+  // WakeBuilder patches builder.builder-hub.dev/last-used for sleepy builders (wakes them up).
   rpc WakeBuilder(WakeBuilderRequest) returns (WakeBuilderResponse) {
     option (google.api.http) = {
       post: "/v1/namespaces/{namespace}/builders/{name}/wake"
@@ -66,6 +79,23 @@ message CreateBuilderRequest {
 message CreateBuilderResponse {
   Builder builder = 1;
 }
+
+message UpdateBuilderRequest {
+  string namespace = 1;
+  string name = 2;
+  BuilderSpec spec = 3;
+}
+
+message UpdateBuilderResponse {
+  Builder builder = 1;
+}
+
+message DeleteBuilderRequest {
+  string namespace = 1;
+  string name = 2;
+}
+
+message DeleteBuilderResponse {}
 
 message WakeBuilderRequest {
   string namespace = 1;

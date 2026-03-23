@@ -310,6 +310,198 @@ func (x *CreateBuilderResponse) GetBuilder() *Builder {
 	return nil
 }
 
+type UpdateBuilderRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Namespace     string                 `protobuf:"bytes,1,opt,name=namespace,proto3" json:"namespace,omitempty"`
+	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	Spec          *BuilderSpec           `protobuf:"bytes,3,opt,name=spec,proto3" json:"spec,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UpdateBuilderRequest) Reset() {
+	*x = UpdateBuilderRequest{}
+	mi := &file_buildapi_v1_buildapi_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UpdateBuilderRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpdateBuilderRequest) ProtoMessage() {}
+
+func (x *UpdateBuilderRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_buildapi_v1_buildapi_proto_msgTypes[6]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UpdateBuilderRequest.ProtoReflect.Descriptor instead.
+func (*UpdateBuilderRequest) Descriptor() ([]byte, []int) {
+	return file_buildapi_v1_buildapi_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *UpdateBuilderRequest) GetNamespace() string {
+	if x != nil {
+		return x.Namespace
+	}
+	return ""
+}
+
+func (x *UpdateBuilderRequest) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *UpdateBuilderRequest) GetSpec() *BuilderSpec {
+	if x != nil {
+		return x.Spec
+	}
+	return nil
+}
+
+type UpdateBuilderResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Builder       *Builder               `protobuf:"bytes,1,opt,name=builder,proto3" json:"builder,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UpdateBuilderResponse) Reset() {
+	*x = UpdateBuilderResponse{}
+	mi := &file_buildapi_v1_buildapi_proto_msgTypes[7]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UpdateBuilderResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpdateBuilderResponse) ProtoMessage() {}
+
+func (x *UpdateBuilderResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_buildapi_v1_buildapi_proto_msgTypes[7]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UpdateBuilderResponse.ProtoReflect.Descriptor instead.
+func (*UpdateBuilderResponse) Descriptor() ([]byte, []int) {
+	return file_buildapi_v1_buildapi_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *UpdateBuilderResponse) GetBuilder() *Builder {
+	if x != nil {
+		return x.Builder
+	}
+	return nil
+}
+
+type DeleteBuilderRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Namespace     string                 `protobuf:"bytes,1,opt,name=namespace,proto3" json:"namespace,omitempty"`
+	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DeleteBuilderRequest) Reset() {
+	*x = DeleteBuilderRequest{}
+	mi := &file_buildapi_v1_buildapi_proto_msgTypes[8]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DeleteBuilderRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DeleteBuilderRequest) ProtoMessage() {}
+
+func (x *DeleteBuilderRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_buildapi_v1_buildapi_proto_msgTypes[8]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DeleteBuilderRequest.ProtoReflect.Descriptor instead.
+func (*DeleteBuilderRequest) Descriptor() ([]byte, []int) {
+	return file_buildapi_v1_buildapi_proto_rawDescGZIP(), []int{8}
+}
+
+func (x *DeleteBuilderRequest) GetNamespace() string {
+	if x != nil {
+		return x.Namespace
+	}
+	return ""
+}
+
+func (x *DeleteBuilderRequest) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+type DeleteBuilderResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DeleteBuilderResponse) Reset() {
+	*x = DeleteBuilderResponse{}
+	mi := &file_buildapi_v1_buildapi_proto_msgTypes[9]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DeleteBuilderResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DeleteBuilderResponse) ProtoMessage() {}
+
+func (x *DeleteBuilderResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_buildapi_v1_buildapi_proto_msgTypes[9]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DeleteBuilderResponse.ProtoReflect.Descriptor instead.
+func (*DeleteBuilderResponse) Descriptor() ([]byte, []int) {
+	return file_buildapi_v1_buildapi_proto_rawDescGZIP(), []int{9}
+}
+
 type WakeBuilderRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Namespace     string                 `protobuf:"bytes,1,opt,name=namespace,proto3" json:"namespace,omitempty"`
@@ -320,7 +512,7 @@ type WakeBuilderRequest struct {
 
 func (x *WakeBuilderRequest) Reset() {
 	*x = WakeBuilderRequest{}
-	mi := &file_buildapi_v1_buildapi_proto_msgTypes[6]
+	mi := &file_buildapi_v1_buildapi_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -332,7 +524,7 @@ func (x *WakeBuilderRequest) String() string {
 func (*WakeBuilderRequest) ProtoMessage() {}
 
 func (x *WakeBuilderRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_buildapi_v1_buildapi_proto_msgTypes[6]
+	mi := &file_buildapi_v1_buildapi_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -345,7 +537,7 @@ func (x *WakeBuilderRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use WakeBuilderRequest.ProtoReflect.Descriptor instead.
 func (*WakeBuilderRequest) Descriptor() ([]byte, []int) {
-	return file_buildapi_v1_buildapi_proto_rawDescGZIP(), []int{6}
+	return file_buildapi_v1_buildapi_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *WakeBuilderRequest) GetNamespace() string {
@@ -371,7 +563,7 @@ type WakeBuilderResponse struct {
 
 func (x *WakeBuilderResponse) Reset() {
 	*x = WakeBuilderResponse{}
-	mi := &file_buildapi_v1_buildapi_proto_msgTypes[7]
+	mi := &file_buildapi_v1_buildapi_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -383,7 +575,7 @@ func (x *WakeBuilderResponse) String() string {
 func (*WakeBuilderResponse) ProtoMessage() {}
 
 func (x *WakeBuilderResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_buildapi_v1_buildapi_proto_msgTypes[7]
+	mi := &file_buildapi_v1_buildapi_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -396,7 +588,7 @@ func (x *WakeBuilderResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use WakeBuilderResponse.ProtoReflect.Descriptor instead.
 func (*WakeBuilderResponse) Descriptor() ([]byte, []int) {
-	return file_buildapi_v1_buildapi_proto_rawDescGZIP(), []int{7}
+	return file_buildapi_v1_buildapi_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *WakeBuilderResponse) GetBuilder() *Builder {
@@ -414,7 +606,7 @@ type HealthCheckRequest struct {
 
 func (x *HealthCheckRequest) Reset() {
 	*x = HealthCheckRequest{}
-	mi := &file_buildapi_v1_buildapi_proto_msgTypes[8]
+	mi := &file_buildapi_v1_buildapi_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -426,7 +618,7 @@ func (x *HealthCheckRequest) String() string {
 func (*HealthCheckRequest) ProtoMessage() {}
 
 func (x *HealthCheckRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_buildapi_v1_buildapi_proto_msgTypes[8]
+	mi := &file_buildapi_v1_buildapi_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -439,7 +631,7 @@ func (x *HealthCheckRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use HealthCheckRequest.ProtoReflect.Descriptor instead.
 func (*HealthCheckRequest) Descriptor() ([]byte, []int) {
-	return file_buildapi_v1_buildapi_proto_rawDescGZIP(), []int{8}
+	return file_buildapi_v1_buildapi_proto_rawDescGZIP(), []int{12}
 }
 
 type HealthCheckResponse struct {
@@ -451,7 +643,7 @@ type HealthCheckResponse struct {
 
 func (x *HealthCheckResponse) Reset() {
 	*x = HealthCheckResponse{}
-	mi := &file_buildapi_v1_buildapi_proto_msgTypes[9]
+	mi := &file_buildapi_v1_buildapi_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -463,7 +655,7 @@ func (x *HealthCheckResponse) String() string {
 func (*HealthCheckResponse) ProtoMessage() {}
 
 func (x *HealthCheckResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_buildapi_v1_buildapi_proto_msgTypes[9]
+	mi := &file_buildapi_v1_buildapi_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -476,7 +668,7 @@ func (x *HealthCheckResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use HealthCheckResponse.ProtoReflect.Descriptor instead.
 func (*HealthCheckResponse) Descriptor() ([]byte, []int) {
-	return file_buildapi_v1_buildapi_proto_rawDescGZIP(), []int{9}
+	return file_buildapi_v1_buildapi_proto_rawDescGZIP(), []int{13}
 }
 
 func (x *HealthCheckResponse) GetStatus() string {
@@ -498,7 +690,7 @@ type Builder struct {
 
 func (x *Builder) Reset() {
 	*x = Builder{}
-	mi := &file_buildapi_v1_buildapi_proto_msgTypes[10]
+	mi := &file_buildapi_v1_buildapi_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -510,7 +702,7 @@ func (x *Builder) String() string {
 func (*Builder) ProtoMessage() {}
 
 func (x *Builder) ProtoReflect() protoreflect.Message {
-	mi := &file_buildapi_v1_buildapi_proto_msgTypes[10]
+	mi := &file_buildapi_v1_buildapi_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -523,7 +715,7 @@ func (x *Builder) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Builder.ProtoReflect.Descriptor instead.
 func (*Builder) Descriptor() ([]byte, []int) {
-	return file_buildapi_v1_buildapi_proto_rawDescGZIP(), []int{10}
+	return file_buildapi_v1_buildapi_proto_rawDescGZIP(), []int{14}
 }
 
 func (x *Builder) GetNamespace() string {
@@ -567,7 +759,7 @@ type BuilderSpec struct {
 
 func (x *BuilderSpec) Reset() {
 	*x = BuilderSpec{}
-	mi := &file_buildapi_v1_buildapi_proto_msgTypes[11]
+	mi := &file_buildapi_v1_buildapi_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -579,7 +771,7 @@ func (x *BuilderSpec) String() string {
 func (*BuilderSpec) ProtoMessage() {}
 
 func (x *BuilderSpec) ProtoReflect() protoreflect.Message {
-	mi := &file_buildapi_v1_buildapi_proto_msgTypes[11]
+	mi := &file_buildapi_v1_buildapi_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -592,7 +784,7 @@ func (x *BuilderSpec) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BuilderSpec.ProtoReflect.Descriptor instead.
 func (*BuilderSpec) Descriptor() ([]byte, []int) {
-	return file_buildapi_v1_buildapi_proto_rawDescGZIP(), []int{11}
+	return file_buildapi_v1_buildapi_proto_rawDescGZIP(), []int{15}
 }
 
 func (x *BuilderSpec) GetTemplateRef() string {
@@ -641,7 +833,7 @@ type BuilderStatus struct {
 
 func (x *BuilderStatus) Reset() {
 	*x = BuilderStatus{}
-	mi := &file_buildapi_v1_buildapi_proto_msgTypes[12]
+	mi := &file_buildapi_v1_buildapi_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -653,7 +845,7 @@ func (x *BuilderStatus) String() string {
 func (*BuilderStatus) ProtoMessage() {}
 
 func (x *BuilderStatus) ProtoReflect() protoreflect.Message {
-	mi := &file_buildapi_v1_buildapi_proto_msgTypes[12]
+	mi := &file_buildapi_v1_buildapi_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -666,7 +858,7 @@ func (x *BuilderStatus) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BuilderStatus.ProtoReflect.Descriptor instead.
 func (*BuilderStatus) Descriptor() ([]byte, []int) {
-	return file_buildapi_v1_buildapi_proto_rawDescGZIP(), []int{12}
+	return file_buildapi_v1_buildapi_proto_rawDescGZIP(), []int{16}
 }
 
 func (x *BuilderStatus) GetEndpoint() string {
@@ -709,7 +901,17 @@ const file_buildapi_v1_buildapi_proto_rawDesc = "" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12,\n" +
 	"\x04spec\x18\x03 \x01(\v2\x18.buildapi.v1.BuilderSpecR\x04spec\"G\n" +
 	"\x15CreateBuilderResponse\x12.\n" +
-	"\abuilder\x18\x01 \x01(\v2\x14.buildapi.v1.BuilderR\abuilder\"F\n" +
+	"\abuilder\x18\x01 \x01(\v2\x14.buildapi.v1.BuilderR\abuilder\"v\n" +
+	"\x14UpdateBuilderRequest\x12\x1c\n" +
+	"\tnamespace\x18\x01 \x01(\tR\tnamespace\x12\x12\n" +
+	"\x04name\x18\x02 \x01(\tR\x04name\x12,\n" +
+	"\x04spec\x18\x03 \x01(\v2\x18.buildapi.v1.BuilderSpecR\x04spec\"G\n" +
+	"\x15UpdateBuilderResponse\x12.\n" +
+	"\abuilder\x18\x01 \x01(\v2\x14.buildapi.v1.BuilderR\abuilder\"H\n" +
+	"\x14DeleteBuilderRequest\x12\x1c\n" +
+	"\tnamespace\x18\x01 \x01(\tR\tnamespace\x12\x12\n" +
+	"\x04name\x18\x02 \x01(\tR\x04name\"\x17\n" +
+	"\x15DeleteBuilderResponse\"F\n" +
 	"\x12WakeBuilderRequest\x12\x1c\n" +
 	"\tnamespace\x18\x01 \x01(\tR\tnamespace\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\"E\n" +
@@ -735,12 +937,14 @@ const file_buildapi_v1_buildapi_proto_rawDesc = "" +
 	"\rBuilderStatus\x12\x1a\n" +
 	"\bendpoint\x18\x01 \x01(\tR\bendpoint\x12\x1b\n" +
 	"\tnode_port\x18\x02 \x01(\x05R\bnodePort\x12\x14\n" +
-	"\x05phase\x18\x03 \x01(\tR\x05phase2\x8f\x05\n" +
+	"\x05phase\x18\x03 \x01(\tR\x05phase2\xac\a\n" +
 	"\bBuildAPI\x12\x80\x01\n" +
 	"\fListBuilders\x12 .buildapi.v1.ListBuildersRequest\x1a!.buildapi.v1.ListBuildersResponse\"+\x82\xd3\xe4\x93\x02%\x12#/v1/namespaces/{namespace}/builders\x12\x81\x01\n" +
 	"\n" +
 	"GetBuilder\x12\x1e.buildapi.v1.GetBuilderRequest\x1a\x1f.buildapi.v1.GetBuilderResponse\"2\x82\xd3\xe4\x93\x02,\x12*/v1/namespaces/{namespace}/builders/{name}\x12\x86\x01\n" +
-	"\rCreateBuilder\x12!.buildapi.v1.CreateBuilderRequest\x1a\".buildapi.v1.CreateBuilderResponse\".\x82\xd3\xe4\x93\x02(:\x01*\"#/v1/namespaces/{namespace}/builders\x12\x8c\x01\n" +
+	"\rCreateBuilder\x12!.buildapi.v1.CreateBuilderRequest\x1a\".buildapi.v1.CreateBuilderResponse\".\x82\xd3\xe4\x93\x02(:\x01*\"#/v1/namespaces/{namespace}/builders\x12\x8d\x01\n" +
+	"\rUpdateBuilder\x12!.buildapi.v1.UpdateBuilderRequest\x1a\".buildapi.v1.UpdateBuilderResponse\"5\x82\xd3\xe4\x93\x02/:\x01*2*/v1/namespaces/{namespace}/builders/{name}\x12\x8a\x01\n" +
+	"\rDeleteBuilder\x12!.buildapi.v1.DeleteBuilderRequest\x1a\".buildapi.v1.DeleteBuilderResponse\"2\x82\xd3\xe4\x93\x02,**/v1/namespaces/{namespace}/builders/{name}\x12\x8c\x01\n" +
 	"\vWakeBuilder\x12\x1f.buildapi.v1.WakeBuilderRequest\x1a .buildapi.v1.WakeBuilderResponse\":\x82\xd3\xe4\x93\x024:\x01*\"//v1/namespaces/{namespace}/builders/{name}/wake\x12d\n" +
 	"\vHealthCheck\x12\x1f.buildapi.v1.HealthCheckRequest\x1a .buildapi.v1.HealthCheckResponse\"\x12\x82\xd3\xe4\x93\x02\f\x12\n" +
 	"/v1/healthB@Z>github.com/builderhub/build-api/api/gen/buildapi/v1;buildapiv1b\x06proto3"
@@ -757,7 +961,7 @@ func file_buildapi_v1_buildapi_proto_rawDescGZIP() []byte {
 	return file_buildapi_v1_buildapi_proto_rawDescData
 }
 
-var file_buildapi_v1_buildapi_proto_msgTypes = make([]protoimpl.MessageInfo, 14)
+var file_buildapi_v1_buildapi_proto_msgTypes = make([]protoimpl.MessageInfo, 18)
 var file_buildapi_v1_buildapi_proto_goTypes = []any{
 	(*ListBuildersRequest)(nil),   // 0: buildapi.v1.ListBuildersRequest
 	(*ListBuildersResponse)(nil),  // 1: buildapi.v1.ListBuildersResponse
@@ -765,39 +969,49 @@ var file_buildapi_v1_buildapi_proto_goTypes = []any{
 	(*GetBuilderResponse)(nil),    // 3: buildapi.v1.GetBuilderResponse
 	(*CreateBuilderRequest)(nil),  // 4: buildapi.v1.CreateBuilderRequest
 	(*CreateBuilderResponse)(nil), // 5: buildapi.v1.CreateBuilderResponse
-	(*WakeBuilderRequest)(nil),    // 6: buildapi.v1.WakeBuilderRequest
-	(*WakeBuilderResponse)(nil),   // 7: buildapi.v1.WakeBuilderResponse
-	(*HealthCheckRequest)(nil),    // 8: buildapi.v1.HealthCheckRequest
-	(*HealthCheckResponse)(nil),   // 9: buildapi.v1.HealthCheckResponse
-	(*Builder)(nil),               // 10: buildapi.v1.Builder
-	(*BuilderSpec)(nil),           // 11: buildapi.v1.BuilderSpec
-	(*BuilderStatus)(nil),         // 12: buildapi.v1.BuilderStatus
-	nil,                           // 13: buildapi.v1.BuilderSpec.LabelsEntry
+	(*UpdateBuilderRequest)(nil),  // 6: buildapi.v1.UpdateBuilderRequest
+	(*UpdateBuilderResponse)(nil), // 7: buildapi.v1.UpdateBuilderResponse
+	(*DeleteBuilderRequest)(nil),  // 8: buildapi.v1.DeleteBuilderRequest
+	(*DeleteBuilderResponse)(nil), // 9: buildapi.v1.DeleteBuilderResponse
+	(*WakeBuilderRequest)(nil),    // 10: buildapi.v1.WakeBuilderRequest
+	(*WakeBuilderResponse)(nil),   // 11: buildapi.v1.WakeBuilderResponse
+	(*HealthCheckRequest)(nil),    // 12: buildapi.v1.HealthCheckRequest
+	(*HealthCheckResponse)(nil),   // 13: buildapi.v1.HealthCheckResponse
+	(*Builder)(nil),               // 14: buildapi.v1.Builder
+	(*BuilderSpec)(nil),           // 15: buildapi.v1.BuilderSpec
+	(*BuilderStatus)(nil),         // 16: buildapi.v1.BuilderStatus
+	nil,                           // 17: buildapi.v1.BuilderSpec.LabelsEntry
 }
 var file_buildapi_v1_buildapi_proto_depIdxs = []int32{
-	10, // 0: buildapi.v1.ListBuildersResponse.builders:type_name -> buildapi.v1.Builder
-	10, // 1: buildapi.v1.GetBuilderResponse.builder:type_name -> buildapi.v1.Builder
-	11, // 2: buildapi.v1.CreateBuilderRequest.spec:type_name -> buildapi.v1.BuilderSpec
-	10, // 3: buildapi.v1.CreateBuilderResponse.builder:type_name -> buildapi.v1.Builder
-	10, // 4: buildapi.v1.WakeBuilderResponse.builder:type_name -> buildapi.v1.Builder
-	11, // 5: buildapi.v1.Builder.spec:type_name -> buildapi.v1.BuilderSpec
-	12, // 6: buildapi.v1.Builder.status:type_name -> buildapi.v1.BuilderStatus
-	13, // 7: buildapi.v1.BuilderSpec.labels:type_name -> buildapi.v1.BuilderSpec.LabelsEntry
-	0,  // 8: buildapi.v1.BuildAPI.ListBuilders:input_type -> buildapi.v1.ListBuildersRequest
-	2,  // 9: buildapi.v1.BuildAPI.GetBuilder:input_type -> buildapi.v1.GetBuilderRequest
-	4,  // 10: buildapi.v1.BuildAPI.CreateBuilder:input_type -> buildapi.v1.CreateBuilderRequest
-	6,  // 11: buildapi.v1.BuildAPI.WakeBuilder:input_type -> buildapi.v1.WakeBuilderRequest
-	8,  // 12: buildapi.v1.BuildAPI.HealthCheck:input_type -> buildapi.v1.HealthCheckRequest
-	1,  // 13: buildapi.v1.BuildAPI.ListBuilders:output_type -> buildapi.v1.ListBuildersResponse
-	3,  // 14: buildapi.v1.BuildAPI.GetBuilder:output_type -> buildapi.v1.GetBuilderResponse
-	5,  // 15: buildapi.v1.BuildAPI.CreateBuilder:output_type -> buildapi.v1.CreateBuilderResponse
-	7,  // 16: buildapi.v1.BuildAPI.WakeBuilder:output_type -> buildapi.v1.WakeBuilderResponse
-	9,  // 17: buildapi.v1.BuildAPI.HealthCheck:output_type -> buildapi.v1.HealthCheckResponse
-	13, // [13:18] is the sub-list for method output_type
-	8,  // [8:13] is the sub-list for method input_type
-	8,  // [8:8] is the sub-list for extension type_name
-	8,  // [8:8] is the sub-list for extension extendee
-	0,  // [0:8] is the sub-list for field type_name
+	14, // 0: buildapi.v1.ListBuildersResponse.builders:type_name -> buildapi.v1.Builder
+	14, // 1: buildapi.v1.GetBuilderResponse.builder:type_name -> buildapi.v1.Builder
+	15, // 2: buildapi.v1.CreateBuilderRequest.spec:type_name -> buildapi.v1.BuilderSpec
+	14, // 3: buildapi.v1.CreateBuilderResponse.builder:type_name -> buildapi.v1.Builder
+	15, // 4: buildapi.v1.UpdateBuilderRequest.spec:type_name -> buildapi.v1.BuilderSpec
+	14, // 5: buildapi.v1.UpdateBuilderResponse.builder:type_name -> buildapi.v1.Builder
+	14, // 6: buildapi.v1.WakeBuilderResponse.builder:type_name -> buildapi.v1.Builder
+	15, // 7: buildapi.v1.Builder.spec:type_name -> buildapi.v1.BuilderSpec
+	16, // 8: buildapi.v1.Builder.status:type_name -> buildapi.v1.BuilderStatus
+	17, // 9: buildapi.v1.BuilderSpec.labels:type_name -> buildapi.v1.BuilderSpec.LabelsEntry
+	0,  // 10: buildapi.v1.BuildAPI.ListBuilders:input_type -> buildapi.v1.ListBuildersRequest
+	2,  // 11: buildapi.v1.BuildAPI.GetBuilder:input_type -> buildapi.v1.GetBuilderRequest
+	4,  // 12: buildapi.v1.BuildAPI.CreateBuilder:input_type -> buildapi.v1.CreateBuilderRequest
+	6,  // 13: buildapi.v1.BuildAPI.UpdateBuilder:input_type -> buildapi.v1.UpdateBuilderRequest
+	8,  // 14: buildapi.v1.BuildAPI.DeleteBuilder:input_type -> buildapi.v1.DeleteBuilderRequest
+	10, // 15: buildapi.v1.BuildAPI.WakeBuilder:input_type -> buildapi.v1.WakeBuilderRequest
+	12, // 16: buildapi.v1.BuildAPI.HealthCheck:input_type -> buildapi.v1.HealthCheckRequest
+	1,  // 17: buildapi.v1.BuildAPI.ListBuilders:output_type -> buildapi.v1.ListBuildersResponse
+	3,  // 18: buildapi.v1.BuildAPI.GetBuilder:output_type -> buildapi.v1.GetBuilderResponse
+	5,  // 19: buildapi.v1.BuildAPI.CreateBuilder:output_type -> buildapi.v1.CreateBuilderResponse
+	7,  // 20: buildapi.v1.BuildAPI.UpdateBuilder:output_type -> buildapi.v1.UpdateBuilderResponse
+	9,  // 21: buildapi.v1.BuildAPI.DeleteBuilder:output_type -> buildapi.v1.DeleteBuilderResponse
+	11, // 22: buildapi.v1.BuildAPI.WakeBuilder:output_type -> buildapi.v1.WakeBuilderResponse
+	13, // 23: buildapi.v1.BuildAPI.HealthCheck:output_type -> buildapi.v1.HealthCheckResponse
+	17, // [17:24] is the sub-list for method output_type
+	10, // [10:17] is the sub-list for method input_type
+	10, // [10:10] is the sub-list for extension type_name
+	10, // [10:10] is the sub-list for extension extendee
+	0,  // [0:10] is the sub-list for field type_name
 }
 
 func init() { file_buildapi_v1_buildapi_proto_init() }
@@ -811,7 +1025,7 @@ func file_buildapi_v1_buildapi_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_buildapi_v1_buildapi_proto_rawDesc), len(file_buildapi_v1_buildapi_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   14,
+			NumMessages:   18,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

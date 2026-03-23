@@ -22,6 +22,8 @@ const (
 	BuildAPI_ListBuilders_FullMethodName  = "/buildapi.v1.BuildAPI/ListBuilders"
 	BuildAPI_GetBuilder_FullMethodName    = "/buildapi.v1.BuildAPI/GetBuilder"
 	BuildAPI_CreateBuilder_FullMethodName = "/buildapi.v1.BuildAPI/CreateBuilder"
+	BuildAPI_UpdateBuilder_FullMethodName = "/buildapi.v1.BuildAPI/UpdateBuilder"
+	BuildAPI_DeleteBuilder_FullMethodName = "/buildapi.v1.BuildAPI/DeleteBuilder"
 	BuildAPI_WakeBuilder_FullMethodName   = "/buildapi.v1.BuildAPI/WakeBuilder"
 	BuildAPI_HealthCheck_FullMethodName   = "/buildapi.v1.BuildAPI/HealthCheck"
 )
@@ -38,7 +40,11 @@ type BuildAPIClient interface {
 	GetBuilder(ctx context.Context, in *GetBuilderRequest, opts ...grpc.CallOption) (*GetBuilderResponse, error)
 	// CreateBuilder creates a new BuildkitBuilder CR.
 	CreateBuilder(ctx context.Context, in *CreateBuilderRequest, opts ...grpc.CallOption) (*CreateBuilderResponse, error)
-	// WakeBuilder patches builder-hub.dev/last-used for sleepy builders (wakes them up).
+	// UpdateBuilder updates an existing BuildkitBuilder CR (spec only; name immutable).
+	UpdateBuilder(ctx context.Context, in *UpdateBuilderRequest, opts ...grpc.CallOption) (*UpdateBuilderResponse, error)
+	// DeleteBuilder deletes a BuildkitBuilder CR and its resources.
+	DeleteBuilder(ctx context.Context, in *DeleteBuilderRequest, opts ...grpc.CallOption) (*DeleteBuilderResponse, error)
+	// WakeBuilder patches builder.builder-hub.dev/last-used for sleepy builders (wakes them up).
 	WakeBuilder(ctx context.Context, in *WakeBuilderRequest, opts ...grpc.CallOption) (*WakeBuilderResponse, error)
 	// HealthCheck for liveness/readiness.
 	HealthCheck(ctx context.Context, in *HealthCheckRequest, opts ...grpc.CallOption) (*HealthCheckResponse, error)
@@ -82,6 +88,26 @@ func (c *buildAPIClient) CreateBuilder(ctx context.Context, in *CreateBuilderReq
 	return out, nil
 }
 
+func (c *buildAPIClient) UpdateBuilder(ctx context.Context, in *UpdateBuilderRequest, opts ...grpc.CallOption) (*UpdateBuilderResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(UpdateBuilderResponse)
+	err := c.cc.Invoke(ctx, BuildAPI_UpdateBuilder_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *buildAPIClient) DeleteBuilder(ctx context.Context, in *DeleteBuilderRequest, opts ...grpc.CallOption) (*DeleteBuilderResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(DeleteBuilderResponse)
+	err := c.cc.Invoke(ctx, BuildAPI_DeleteBuilder_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *buildAPIClient) WakeBuilder(ctx context.Context, in *WakeBuilderRequest, opts ...grpc.CallOption) (*WakeBuilderResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(WakeBuilderResponse)
@@ -114,7 +140,11 @@ type BuildAPIServer interface {
 	GetBuilder(context.Context, *GetBuilderRequest) (*GetBuilderResponse, error)
 	// CreateBuilder creates a new BuildkitBuilder CR.
 	CreateBuilder(context.Context, *CreateBuilderRequest) (*CreateBuilderResponse, error)
-	// WakeBuilder patches builder-hub.dev/last-used for sleepy builders (wakes them up).
+	// UpdateBuilder updates an existing BuildkitBuilder CR (spec only; name immutable).
+	UpdateBuilder(context.Context, *UpdateBuilderRequest) (*UpdateBuilderResponse, error)
+	// DeleteBuilder deletes a BuildkitBuilder CR and its resources.
+	DeleteBuilder(context.Context, *DeleteBuilderRequest) (*DeleteBuilderResponse, error)
+	// WakeBuilder patches builder.builder-hub.dev/last-used for sleepy builders (wakes them up).
 	WakeBuilder(context.Context, *WakeBuilderRequest) (*WakeBuilderResponse, error)
 	// HealthCheck for liveness/readiness.
 	HealthCheck(context.Context, *HealthCheckRequest) (*HealthCheckResponse, error)
@@ -136,6 +166,12 @@ func (UnimplementedBuildAPIServer) GetBuilder(context.Context, *GetBuilderReques
 }
 func (UnimplementedBuildAPIServer) CreateBuilder(context.Context, *CreateBuilderRequest) (*CreateBuilderResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method CreateBuilder not implemented")
+}
+func (UnimplementedBuildAPIServer) UpdateBuilder(context.Context, *UpdateBuilderRequest) (*UpdateBuilderResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method UpdateBuilder not implemented")
+}
+func (UnimplementedBuildAPIServer) DeleteBuilder(context.Context, *DeleteBuilderRequest) (*DeleteBuilderResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method DeleteBuilder not implemented")
 }
 func (UnimplementedBuildAPIServer) WakeBuilder(context.Context, *WakeBuilderRequest) (*WakeBuilderResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method WakeBuilder not implemented")
@@ -218,6 +254,42 @@ func _BuildAPI_CreateBuilder_Handler(srv interface{}, ctx context.Context, dec f
 	return interceptor(ctx, in, info, handler)
 }
 
+func _BuildAPI_UpdateBuilder_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateBuilderRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BuildAPIServer).UpdateBuilder(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: BuildAPI_UpdateBuilder_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BuildAPIServer).UpdateBuilder(ctx, req.(*UpdateBuilderRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _BuildAPI_DeleteBuilder_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteBuilderRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BuildAPIServer).DeleteBuilder(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: BuildAPI_DeleteBuilder_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BuildAPIServer).DeleteBuilder(ctx, req.(*DeleteBuilderRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _BuildAPI_WakeBuilder_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(WakeBuilderRequest)
 	if err := dec(in); err != nil {
@@ -272,6 +344,14 @@ var BuildAPI_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "CreateBuilder",
 			Handler:    _BuildAPI_CreateBuilder_Handler,
+		},
+		{
+			MethodName: "UpdateBuilder",
+			Handler:    _BuildAPI_UpdateBuilder_Handler,
+		},
+		{
+			MethodName: "DeleteBuilder",
+			Handler:    _BuildAPI_DeleteBuilder_Handler,
 		},
 		{
 			MethodName: "WakeBuilder",

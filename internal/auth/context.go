@@ -2,15 +2,13 @@ package auth
 
 import "context"
 
-type contextKey string
-
-const userIDKey contextKey = "user_id"
+type ctxKey struct{}
 
 func WithUserID(ctx context.Context, userID string) context.Context {
-	return context.WithValue(ctx, userIDKey, userID)
+	return context.WithValue(ctx, ctxKey{}, userID)
 }
 
 func UserIDFromContext(ctx context.Context) string {
-	v, _ := ctx.Value(userIDKey).(string)
+	v, _ := ctx.Value(ctxKey{}).(string)
 	return v
 }

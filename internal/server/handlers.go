@@ -2,46 +2,79 @@ package server
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	buildapiv1 "github.com/builderhub/build-api/api/gen/buildapi/v1"
+	"github.com/builderhub/build-api/internal/auth"
+	"github.com/builderhub/build-api/internal/db"
 	buildkitv1alpha1 "github.com/builderhub/build-operator/api/v1alpha1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/utils/ptr"
 	ctrl "sigs.k8s.io/controller-runtime/pkg/client"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
-const lastUsedAnnotation = "builder-hub.dev/last-used"
+const lastUsedAnnotation = "builder.builder-hub.dev/last-used"
 
 // BuildAPIService implements buildapiv1.BuildAPIServer.
 // Logger is a minimal interface for structured logging.
 type Logger interface {
 	Infow(msg string, keysAndValues ...interface{})
 	Errorw(msg string, keysAndValues ...interface{})
+	Warnf(format string, args ...interface{})
 }
 
 type BuildAPIService struct {
 	buildapiv1.UnimplementedBuildAPIServer
-	k8s *K8sClient
-	log Logger
+	k8s  *K8sClient
+	pool *db.Pool
+	log  Logger
 }
 
 // NewBuildAPIService creates a new BuildAPIService.
-func NewBuildAPIService(k8s *K8sClient, log Logger) *BuildAPIService {
-	return &BuildAPIService{k8s: k8s, log: log}
+func NewBuildAPIService(k8s *K8sClient, pool *db.Pool, log Logger) *BuildAPIService {
+	return &BuildAPIService{k8s: k8s, pool: pool, log: log}
+}
+
+func (s *BuildAPIService) ensureOrgMember(ctx context.Context, namespace string) error {
+	userID := auth.UserIDFromContext(ctx)
+	if userID == "" {
+		return status.Error(codes.Unauthenticated, "not authenticated")
+	}
+	if namespace == "" {
+		return status.Error(codes.InvalidArgument, "namespace is required")
+	}
+	var exists bool
+	err := s.pool.QueryRow(ctx, `
+		SELECT EXISTS(
+			SELECT 1 FROM organization_members
+			WHERE user_id = $1 AND organization_id = $2
+		)
+	`, userID, namespace).Scan(&exists)
+	if err != nil {
+		return status.Errorf(codes.Internal, "check org membership: %v", err)
+	}
+	if !exists {
+		return status.Error(codes.PermissionDenied, "not a member of this organization")
+	}
+	return nil
 }
 
 // ListBuilders returns all BuildkitBuilder CRs in a namespace.
 func (s *BuildAPIService) ListBuilders(ctx context.Context, req *buildapiv1.ListBuildersRequest) (*buildapiv1.ListBuildersResponse, error) {
+	if err := s.ensureOrgMember(ctx, req.Namespace); err != nil {
+		return nil, err
+	}
 	var list buildkitv1alpha1.BuildkitBuilderList
 	opts := []ctrl.ListOption{}
 	if req.Namespace != "" {
 		opts = append(opts, ctrl.InNamespace(req.Namespace))
 	}
 	if err := s.k8s.List(ctx, &list, opts...); err != nil {
-		return nil, fmt.Errorf("list builders: %w", err)
+		s.log.Errorw("list builders", "err", err)
+		return nil, status.Errorf(codes.Internal, "list builders: %v", err)
 	}
 	builders := make([]*buildapiv1.Builder, 0, len(list.Items))
 	for i := range list.Items {
@@ -52,31 +85,113 @@ func (s *BuildAPIService) ListBuilders(ctx context.Context, req *buildapiv1.List
 
 // GetBuilder returns a single BuildkitBuilder by name.
 func (s *BuildAPIService) GetBuilder(ctx context.Context, req *buildapiv1.GetBuilderRequest) (*buildapiv1.GetBuilderResponse, error) {
+	if err := s.ensureOrgMember(ctx, req.Namespace); err != nil {
+		return nil, err
+	}
+	if req.Name == "" {
+		return nil, status.Error(codes.InvalidArgument, "name is required")
+	}
 	var b buildkitv1alpha1.BuildkitBuilder
 	if err := s.k8s.Get(ctx, types.NamespacedName{Namespace: req.Namespace, Name: req.Name}, &b); err != nil {
-		return nil, fmt.Errorf("get builder: %w", err)
+		if ctrl.IgnoreNotFound(err) != nil {
+			s.log.Errorw("get builder", "err", err)
+			return nil, status.Errorf(codes.Internal, "get builder: %v", err)
+		}
+		return nil, status.Error(codes.NotFound, "builder not found")
 	}
 	return &buildapiv1.GetBuilderResponse{Builder: crToProto(&b)}, nil
 }
 
 // CreateBuilder creates a new BuildkitBuilder CR.
 func (s *BuildAPIService) CreateBuilder(ctx context.Context, req *buildapiv1.CreateBuilderRequest) (*buildapiv1.CreateBuilderResponse, error) {
+	if err := s.ensureOrgMember(ctx, req.Namespace); err != nil {
+		return nil, err
+	}
+	if req.Name == "" {
+		return nil, status.Error(codes.InvalidArgument, "name is required")
+	}
+	if req.Spec == nil {
+		return nil, status.Error(codes.InvalidArgument, "spec is required")
+	}
+	if req.Spec.TemplateRef == "" {
+		return nil, status.Error(codes.InvalidArgument, "spec.template_ref is required (e.g. builder-small, builder-medium, builder-large, builder-xlarge)")
+	}
 	b := &buildkitv1alpha1.BuildkitBuilder{
 		ObjectMeta: metav1.ObjectMeta{Namespace: req.Namespace, Name: req.Name},
 		Spec:       protoSpecToCR(req.Spec),
 	}
 	if err := s.k8s.Create(ctx, b); err != nil {
-		return nil, fmt.Errorf("create builder: %w", err)
+		s.log.Errorw("create builder", "err", err)
+		return nil, status.Errorf(codes.Internal, "create builder: %v", err)
 	}
 	s.log.Infow("created builder", "namespace", req.Namespace, "name", req.Name)
 	return &buildapiv1.CreateBuilderResponse{Builder: crToProto(b)}, nil
 }
 
-// WakeBuilder patches builder-hub.dev/last-used for sleepy builders.
-func (s *BuildAPIService) WakeBuilder(ctx context.Context, req *buildapiv1.WakeBuilderRequest) (*buildapiv1.WakeBuilderResponse, error) {
+// UpdateBuilder updates an existing BuildkitBuilder CR (spec only; name is immutable).
+func (s *BuildAPIService) UpdateBuilder(ctx context.Context, req *buildapiv1.UpdateBuilderRequest) (*buildapiv1.UpdateBuilderResponse, error) {
+	if err := s.ensureOrgMember(ctx, req.Namespace); err != nil {
+		return nil, err
+	}
+	if req.Name == "" {
+		return nil, status.Error(codes.InvalidArgument, "name is required")
+	}
+	if req.Spec == nil {
+		return nil, status.Error(codes.InvalidArgument, "spec is required")
+	}
 	var b buildkitv1alpha1.BuildkitBuilder
 	if err := s.k8s.Get(ctx, types.NamespacedName{Namespace: req.Namespace, Name: req.Name}, &b); err != nil {
-		return nil, fmt.Errorf("get builder: %w", err)
+		if ctrl.IgnoreNotFound(err) != nil {
+			s.log.Errorw("get builder", "err", err)
+			return nil, status.Errorf(codes.Internal, "get builder: %v", err)
+		}
+		return nil, status.Error(codes.NotFound, "builder not found")
+	}
+	b.Spec = protoSpecToCR(req.Spec)
+	if err := s.k8s.Update(ctx, &b); err != nil {
+		s.log.Errorw("update builder", "err", err)
+		return nil, status.Errorf(codes.Internal, "update builder: %v", err)
+	}
+	s.log.Infow("updated builder", "namespace", req.Namespace, "name", req.Name)
+	return &buildapiv1.UpdateBuilderResponse{Builder: crToProto(&b)}, nil
+}
+
+// DeleteBuilder deletes a BuildkitBuilder CR.
+func (s *BuildAPIService) DeleteBuilder(ctx context.Context, req *buildapiv1.DeleteBuilderRequest) (*buildapiv1.DeleteBuilderResponse, error) {
+	if err := s.ensureOrgMember(ctx, req.Namespace); err != nil {
+		return nil, err
+	}
+	if req.Name == "" {
+		return nil, status.Error(codes.InvalidArgument, "name is required")
+	}
+	b := &buildkitv1alpha1.BuildkitBuilder{}
+	b.Namespace = req.Namespace
+	b.Name = req.Name
+	if err := s.k8s.Delete(ctx, b); err != nil {
+		if ctrl.IgnoreNotFound(err) != nil {
+			s.log.Errorw("delete builder", "err", err)
+			return nil, status.Errorf(codes.Internal, "delete builder: %v", err)
+		}
+	}
+	s.log.Infow("deleted builder", "namespace", req.Namespace, "name", req.Name)
+	return &buildapiv1.DeleteBuilderResponse{}, nil
+}
+
+// WakeBuilder patches builder.builder-hub.dev/last-used for sleepy builders.
+func (s *BuildAPIService) WakeBuilder(ctx context.Context, req *buildapiv1.WakeBuilderRequest) (*buildapiv1.WakeBuilderResponse, error) {
+	if err := s.ensureOrgMember(ctx, req.Namespace); err != nil {
+		return nil, err
+	}
+	if req.Name == "" {
+		return nil, status.Error(codes.InvalidArgument, "name is required")
+	}
+	var b buildkitv1alpha1.BuildkitBuilder
+	if err := s.k8s.Get(ctx, types.NamespacedName{Namespace: req.Namespace, Name: req.Name}, &b); err != nil {
+		if ctrl.IgnoreNotFound(err) != nil {
+			s.log.Errorw("get builder", "err", err)
+			return nil, status.Errorf(codes.Internal, "get builder: %v", err)
+		}
+		return nil, status.Error(codes.NotFound, "builder not found")
 	}
 	original := b.DeepCopy()
 	modified := b.DeepCopy()
@@ -85,7 +200,8 @@ func (s *BuildAPIService) WakeBuilder(ctx context.Context, req *buildapiv1.WakeB
 	}
 	modified.Annotations[lastUsedAnnotation] = time.Now().UTC().Format(time.RFC3339)
 	if err := s.k8s.Patch(ctx, modified, ctrl.MergeFrom(original)); err != nil {
-		return nil, fmt.Errorf("patch builder: %w", err)
+		s.log.Errorw("patch builder", "err", err)
+		return nil, status.Errorf(codes.Internal, "wake builder: %v", err)
 	}
 	s.log.Infow("woke builder", "namespace", req.Namespace, "name", req.Name)
 	return &buildapiv1.WakeBuilderResponse{Builder: crToProto(modified)}, nil
