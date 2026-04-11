@@ -34,6 +34,11 @@ service OrganizationService {
     };
   }
 
+  // DeleteOrganization removes the organization, its members, and the Kubernetes namespace (all builders).
+  rpc DeleteOrganization(DeleteOrganizationRequest) returns (DeleteOrganizationResponse) {
+    option (google.api.http) = { delete: "/v1/organizations/{id}" };
+  }
+
   // ListOrganizationMembers returns members of an organization (caller must be a member).
   rpc ListOrganizationMembers(ListOrganizationMembersRequest) returns (ListOrganizationMembersResponse) {
     option (google.api.http) = { get: "/v1/organizations/{organization_id}/members" };
@@ -74,6 +79,12 @@ message UpdateOrganizationRequest {
 message UpdateOrganizationResponse {
   Organization organization = 1;
 }
+
+message DeleteOrganizationRequest {
+  string id = 1;
+}
+
+message DeleteOrganizationResponse {}
 
 message Organization {
   string id = 1;

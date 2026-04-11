@@ -107,6 +107,10 @@ func (s *BuildAPIService) CreateBuilder(ctx context.Context, req *buildapiv1.Cre
 	if err := s.ensureOrgMember(ctx, req.Namespace); err != nil {
 		return nil, err
 	}
+	if err := s.k8s.EnsureOrgNamespace(ctx, req.Namespace); err != nil {
+		s.log.Errorw("ensure org namespace", "err", err, "namespace", req.Namespace)
+		return nil, status.Errorf(codes.Internal, "ensure namespace: %v", err)
+	}
 	if req.Name == "" {
 		return nil, status.Error(codes.InvalidArgument, "name is required")
 	}

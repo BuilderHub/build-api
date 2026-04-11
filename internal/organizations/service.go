@@ -10,6 +10,7 @@ import (
 	buildapiv1 "github.com/builderhub/build-api/api/gen/buildapi/v1"
 	"github.com/builderhub/build-api/internal/auth"
 	"github.com/builderhub/build-api/internal/db"
+	"github.com/builderhub/build-api/internal/k8s"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
 	"go.uber.org/zap"
@@ -24,11 +25,12 @@ const validPlans = "starter, pro, enterprise"
 type Service struct {
 	buildapiv1.UnimplementedOrganizationServiceServer
 	pool *db.Pool
+	k8s  *k8s.Client
 	log  *zap.SugaredLogger
 }
 
-func NewService(pool *db.Pool, log *zap.SugaredLogger) *Service {
-	return &Service{pool: pool, log: log}
+func NewService(pool *db.Pool, k8sClient *k8s.Client, log *zap.SugaredLogger) *Service {
+	return &Service{pool: pool, k8s: k8sClient, log: log}
 }
 
 func (s *Service) ListOrganizations(ctx context.Context, req *buildapiv1.ListOrganizationsRequest) (*buildapiv1.ListOrganizationsResponse, error) {
@@ -151,7 +153,14 @@ func (s *Service) CreateOrganization(ctx context.Context, req *buildapiv1.Create
 		INSERT INTO organization_members (user_id, organization_id, role) VALUES ($1, $2, 'owner')
 	`, userID, orgID)
 	if err != nil {
+		_, _ = s.pool.Exec(ctx, `DELETE FROM organizations WHERE id = $1`, orgID)
 		return nil, status.Errorf(codes.Internal, "add owner membership: %v", err)
+	}
+
+	if err := s.k8s.EnsureOrgNamespace(ctx, orgID); err != nil {
+		_, _ = s.pool.Exec(ctx, `DELETE FROM organizations WHERE id = $1`, orgID)
+		s.log.Errorw("ensure org namespace", "err", err, "orgId", orgID)
+		return nil, status.Errorf(codes.Internal, "create organization namespace: %v", err)
 	}
 
 	var createdAt int64
@@ -247,6 +256,46 @@ func (s *Service) UpdateOrganization(ctx context.Context, req *buildapiv1.Update
 		return nil, err
 	}
 	return &buildapiv1.UpdateOrganizationResponse{Organization: resp.Organization}, nil
+}
+
+func (s *Service) DeleteOrganization(ctx context.Context, req *buildapiv1.DeleteOrganizationRequest) (*buildapiv1.DeleteOrganizationResponse, error) {
+	userID := auth.UserIDFromContext(ctx)
+	if userID == "" {
+		return nil, status.Error(codes.Unauthenticated, "not authenticated")
+	}
+	if req.Id == "" {
+		return nil, status.Error(codes.InvalidArgument, "id is required")
+	}
+
+	var role string
+	err := s.pool.QueryRow(ctx, `
+		SELECT role FROM organization_members WHERE user_id = $1 AND organization_id = $2
+	`, userID, req.Id).Scan(&role)
+	if err != nil {
+		if err == pgx.ErrNoRows {
+			return nil, status.Error(codes.NotFound, "organization not found")
+		}
+		return nil, status.Errorf(codes.Internal, "check membership: %v", err)
+	}
+	if role != "owner" {
+		return nil, status.Error(codes.PermissionDenied, "only the organization owner can delete the organization")
+	}
+
+	if err := s.k8s.DeleteOrgNamespace(ctx, req.Id); err != nil {
+		s.log.Errorw("delete org namespace", "err", err, "orgId", req.Id)
+		return nil, status.Errorf(codes.Internal, "delete organization namespace: %v", err)
+	}
+
+	tag, err := s.pool.Exec(ctx, `DELETE FROM organizations WHERE id = $1`, req.Id)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "delete organization: %v", err)
+	}
+	if tag.RowsAffected() == 0 {
+		return nil, status.Error(codes.NotFound, "organization not found")
+	}
+
+	s.log.Infow("organization deleted", "id", req.Id, "deletedBy", userID)
+	return &buildapiv1.DeleteOrganizationResponse{}, nil
 }
 
 // ListOrganizationMembers returns users in the organization; caller must be a member.

@@ -52,7 +52,7 @@ func main() {
 	jwt := auth.NewJWTManager(jwtSecret)
 	authSvc := auth.NewAuthService(pool, jwt, log.Sugar())
 	buildAPISvc := server.NewBuildAPIService(k8sClient, pool, sugar)
-	orgSvc := organizations.NewService(pool, log.Sugar())
+	orgSvc := organizations.NewService(pool, k8sClient, log.Sugar())
 
 	grpcServer := grpc.NewServer(
 		grpc.UnaryInterceptor(auth.UnaryServerInterceptor(jwt, sugar)),
