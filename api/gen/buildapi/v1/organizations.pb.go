@@ -406,6 +406,86 @@ func (x *UpdateOrganizationResponse) GetOrganization() *Organization {
 	return nil
 }
 
+type DeleteOrganizationRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DeleteOrganizationRequest) Reset() {
+	*x = DeleteOrganizationRequest{}
+	mi := &file_buildapi_v1_organizations_proto_msgTypes[8]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DeleteOrganizationRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DeleteOrganizationRequest) ProtoMessage() {}
+
+func (x *DeleteOrganizationRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_buildapi_v1_organizations_proto_msgTypes[8]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DeleteOrganizationRequest.ProtoReflect.Descriptor instead.
+func (*DeleteOrganizationRequest) Descriptor() ([]byte, []int) {
+	return file_buildapi_v1_organizations_proto_rawDescGZIP(), []int{8}
+}
+
+func (x *DeleteOrganizationRequest) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+type DeleteOrganizationResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DeleteOrganizationResponse) Reset() {
+	*x = DeleteOrganizationResponse{}
+	mi := &file_buildapi_v1_organizations_proto_msgTypes[9]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DeleteOrganizationResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DeleteOrganizationResponse) ProtoMessage() {}
+
+func (x *DeleteOrganizationResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_buildapi_v1_organizations_proto_msgTypes[9]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DeleteOrganizationResponse.ProtoReflect.Descriptor instead.
+func (*DeleteOrganizationResponse) Descriptor() ([]byte, []int) {
+	return file_buildapi_v1_organizations_proto_rawDescGZIP(), []int{9}
+}
+
 type Organization struct {
 	state          protoimpl.MessageState `protogen:"open.v1"`
 	Id             string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
@@ -422,7 +502,7 @@ type Organization struct {
 
 func (x *Organization) Reset() {
 	*x = Organization{}
-	mi := &file_buildapi_v1_organizations_proto_msgTypes[8]
+	mi := &file_buildapi_v1_organizations_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -434,7 +514,7 @@ func (x *Organization) String() string {
 func (*Organization) ProtoMessage() {}
 
 func (x *Organization) ProtoReflect() protoreflect.Message {
-	mi := &file_buildapi_v1_organizations_proto_msgTypes[8]
+	mi := &file_buildapi_v1_organizations_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -447,7 +527,7 @@ func (x *Organization) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Organization.ProtoReflect.Descriptor instead.
 func (*Organization) Descriptor() ([]byte, []int) {
-	return file_buildapi_v1_organizations_proto_rawDescGZIP(), []int{8}
+	return file_buildapi_v1_organizations_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *Organization) GetId() string {
@@ -515,7 +595,7 @@ type ListOrganizationMembersRequest struct {
 
 func (x *ListOrganizationMembersRequest) Reset() {
 	*x = ListOrganizationMembersRequest{}
-	mi := &file_buildapi_v1_organizations_proto_msgTypes[9]
+	mi := &file_buildapi_v1_organizations_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -527,7 +607,7 @@ func (x *ListOrganizationMembersRequest) String() string {
 func (*ListOrganizationMembersRequest) ProtoMessage() {}
 
 func (x *ListOrganizationMembersRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_buildapi_v1_organizations_proto_msgTypes[9]
+	mi := &file_buildapi_v1_organizations_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -540,7 +620,7 @@ func (x *ListOrganizationMembersRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListOrganizationMembersRequest.ProtoReflect.Descriptor instead.
 func (*ListOrganizationMembersRequest) Descriptor() ([]byte, []int) {
-	return file_buildapi_v1_organizations_proto_rawDescGZIP(), []int{9}
+	return file_buildapi_v1_organizations_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *ListOrganizationMembersRequest) GetOrganizationId() string {
@@ -559,7 +639,7 @@ type ListOrganizationMembersResponse struct {
 
 func (x *ListOrganizationMembersResponse) Reset() {
 	*x = ListOrganizationMembersResponse{}
-	mi := &file_buildapi_v1_organizations_proto_msgTypes[10]
+	mi := &file_buildapi_v1_organizations_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -571,7 +651,7 @@ func (x *ListOrganizationMembersResponse) String() string {
 func (*ListOrganizationMembersResponse) ProtoMessage() {}
 
 func (x *ListOrganizationMembersResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_buildapi_v1_organizations_proto_msgTypes[10]
+	mi := &file_buildapi_v1_organizations_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -584,7 +664,7 @@ func (x *ListOrganizationMembersResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListOrganizationMembersResponse.ProtoReflect.Descriptor instead.
 func (*ListOrganizationMembersResponse) Descriptor() ([]byte, []int) {
-	return file_buildapi_v1_organizations_proto_rawDescGZIP(), []int{10}
+	return file_buildapi_v1_organizations_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *ListOrganizationMembersResponse) GetMembers() []*OrganizationMember {
@@ -607,7 +687,7 @@ type OrganizationMember struct {
 
 func (x *OrganizationMember) Reset() {
 	*x = OrganizationMember{}
-	mi := &file_buildapi_v1_organizations_proto_msgTypes[11]
+	mi := &file_buildapi_v1_organizations_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -619,7 +699,7 @@ func (x *OrganizationMember) String() string {
 func (*OrganizationMember) ProtoMessage() {}
 
 func (x *OrganizationMember) ProtoReflect() protoreflect.Message {
-	mi := &file_buildapi_v1_organizations_proto_msgTypes[11]
+	mi := &file_buildapi_v1_organizations_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -632,7 +712,7 @@ func (x *OrganizationMember) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use OrganizationMember.ProtoReflect.Descriptor instead.
 func (*OrganizationMember) Descriptor() ([]byte, []int) {
-	return file_buildapi_v1_organizations_proto_rawDescGZIP(), []int{11}
+	return file_buildapi_v1_organizations_proto_rawDescGZIP(), []int{13}
 }
 
 func (x *OrganizationMember) GetUserId() string {
@@ -694,7 +774,10 @@ const file_buildapi_v1_organizations_proto_rawDesc = "" +
 	"\x04slug\x18\x03 \x01(\tR\x04slug\x12\x12\n" +
 	"\x04plan\x18\x04 \x01(\tR\x04plan\"[\n" +
 	"\x1aUpdateOrganizationResponse\x12=\n" +
-	"\forganization\x18\x01 \x01(\v2\x19.buildapi.v1.OrganizationR\forganization\"\xec\x01\n" +
+	"\forganization\x18\x01 \x01(\v2\x19.buildapi.v1.OrganizationR\forganization\"+\n" +
+	"\x19DeleteOrganizationRequest\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\"\x1c\n" +
+	"\x1aDeleteOrganizationResponse\"\xec\x01\n" +
 	"\fOrganization\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x12\n" +
@@ -714,12 +797,13 @@ const file_buildapi_v1_organizations_proto_rawDesc = "" +
 	"\x05email\x18\x02 \x01(\tR\x05email\x12\x12\n" +
 	"\x04name\x18\x03 \x01(\tR\x04name\x12\x12\n" +
 	"\x04role\x18\x04 \x01(\tR\x04role\x12\x1b\n" +
-	"\tjoined_at\x18\x05 \x01(\x03R\bjoinedAt2\xcf\x05\n" +
+	"\tjoined_at\x18\x05 \x01(\x03R\bjoinedAt2\xd7\x06\n" +
 	"\x13OrganizationService\x12}\n" +
 	"\x11ListOrganizations\x12%.buildapi.v1.ListOrganizationsRequest\x1a&.buildapi.v1.ListOrganizationsResponse\"\x19\x82\xd3\xe4\x93\x02\x13\x12\x11/v1/organizations\x12|\n" +
 	"\x0fGetOrganization\x12#.buildapi.v1.GetOrganizationRequest\x1a$.buildapi.v1.GetOrganizationResponse\"\x1e\x82\xd3\xe4\x93\x02\x18\x12\x16/v1/organizations/{id}\x12\x83\x01\n" +
 	"\x12CreateOrganization\x12&.buildapi.v1.CreateOrganizationRequest\x1a'.buildapi.v1.CreateOrganizationResponse\"\x1c\x82\xd3\xe4\x93\x02\x16:\x01*\"\x11/v1/organizations\x12\x88\x01\n" +
-	"\x12UpdateOrganization\x12&.buildapi.v1.UpdateOrganizationRequest\x1a'.buildapi.v1.UpdateOrganizationResponse\"!\x82\xd3\xe4\x93\x02\x1b:\x01*2\x16/v1/organizations/{id}\x12\xa9\x01\n" +
+	"\x12UpdateOrganization\x12&.buildapi.v1.UpdateOrganizationRequest\x1a'.buildapi.v1.UpdateOrganizationResponse\"!\x82\xd3\xe4\x93\x02\x1b:\x01*2\x16/v1/organizations/{id}\x12\x85\x01\n" +
+	"\x12DeleteOrganization\x12&.buildapi.v1.DeleteOrganizationRequest\x1a'.buildapi.v1.DeleteOrganizationResponse\"\x1e\x82\xd3\xe4\x93\x02\x18*\x16/v1/organizations/{id}\x12\xa9\x01\n" +
 	"\x17ListOrganizationMembers\x12+.buildapi.v1.ListOrganizationMembersRequest\x1a,.buildapi.v1.ListOrganizationMembersResponse\"3\x82\xd3\xe4\x93\x02-\x12+/v1/organizations/{organization_id}/membersB@Z>github.com/builderhub/build-api/api/gen/buildapi/v1;buildapiv1b\x06proto3"
 
 var (
@@ -734,7 +818,7 @@ func file_buildapi_v1_organizations_proto_rawDescGZIP() []byte {
 	return file_buildapi_v1_organizations_proto_rawDescData
 }
 
-var file_buildapi_v1_organizations_proto_msgTypes = make([]protoimpl.MessageInfo, 12)
+var file_buildapi_v1_organizations_proto_msgTypes = make([]protoimpl.MessageInfo, 14)
 var file_buildapi_v1_organizations_proto_goTypes = []any{
 	(*ListOrganizationsRequest)(nil),        // 0: buildapi.v1.ListOrganizationsRequest
 	(*ListOrganizationsResponse)(nil),       // 1: buildapi.v1.ListOrganizationsResponse
@@ -744,29 +828,33 @@ var file_buildapi_v1_organizations_proto_goTypes = []any{
 	(*CreateOrganizationResponse)(nil),      // 5: buildapi.v1.CreateOrganizationResponse
 	(*UpdateOrganizationRequest)(nil),       // 6: buildapi.v1.UpdateOrganizationRequest
 	(*UpdateOrganizationResponse)(nil),      // 7: buildapi.v1.UpdateOrganizationResponse
-	(*Organization)(nil),                    // 8: buildapi.v1.Organization
-	(*ListOrganizationMembersRequest)(nil),  // 9: buildapi.v1.ListOrganizationMembersRequest
-	(*ListOrganizationMembersResponse)(nil), // 10: buildapi.v1.ListOrganizationMembersResponse
-	(*OrganizationMember)(nil),              // 11: buildapi.v1.OrganizationMember
+	(*DeleteOrganizationRequest)(nil),       // 8: buildapi.v1.DeleteOrganizationRequest
+	(*DeleteOrganizationResponse)(nil),      // 9: buildapi.v1.DeleteOrganizationResponse
+	(*Organization)(nil),                    // 10: buildapi.v1.Organization
+	(*ListOrganizationMembersRequest)(nil),  // 11: buildapi.v1.ListOrganizationMembersRequest
+	(*ListOrganizationMembersResponse)(nil), // 12: buildapi.v1.ListOrganizationMembersResponse
+	(*OrganizationMember)(nil),              // 13: buildapi.v1.OrganizationMember
 }
 var file_buildapi_v1_organizations_proto_depIdxs = []int32{
-	8,  // 0: buildapi.v1.ListOrganizationsResponse.organizations:type_name -> buildapi.v1.Organization
-	8,  // 1: buildapi.v1.GetOrganizationResponse.organization:type_name -> buildapi.v1.Organization
-	8,  // 2: buildapi.v1.CreateOrganizationResponse.organization:type_name -> buildapi.v1.Organization
-	8,  // 3: buildapi.v1.UpdateOrganizationResponse.organization:type_name -> buildapi.v1.Organization
-	11, // 4: buildapi.v1.ListOrganizationMembersResponse.members:type_name -> buildapi.v1.OrganizationMember
+	10, // 0: buildapi.v1.ListOrganizationsResponse.organizations:type_name -> buildapi.v1.Organization
+	10, // 1: buildapi.v1.GetOrganizationResponse.organization:type_name -> buildapi.v1.Organization
+	10, // 2: buildapi.v1.CreateOrganizationResponse.organization:type_name -> buildapi.v1.Organization
+	10, // 3: buildapi.v1.UpdateOrganizationResponse.organization:type_name -> buildapi.v1.Organization
+	13, // 4: buildapi.v1.ListOrganizationMembersResponse.members:type_name -> buildapi.v1.OrganizationMember
 	0,  // 5: buildapi.v1.OrganizationService.ListOrganizations:input_type -> buildapi.v1.ListOrganizationsRequest
 	2,  // 6: buildapi.v1.OrganizationService.GetOrganization:input_type -> buildapi.v1.GetOrganizationRequest
 	4,  // 7: buildapi.v1.OrganizationService.CreateOrganization:input_type -> buildapi.v1.CreateOrganizationRequest
 	6,  // 8: buildapi.v1.OrganizationService.UpdateOrganization:input_type -> buildapi.v1.UpdateOrganizationRequest
-	9,  // 9: buildapi.v1.OrganizationService.ListOrganizationMembers:input_type -> buildapi.v1.ListOrganizationMembersRequest
-	1,  // 10: buildapi.v1.OrganizationService.ListOrganizations:output_type -> buildapi.v1.ListOrganizationsResponse
-	3,  // 11: buildapi.v1.OrganizationService.GetOrganization:output_type -> buildapi.v1.GetOrganizationResponse
-	5,  // 12: buildapi.v1.OrganizationService.CreateOrganization:output_type -> buildapi.v1.CreateOrganizationResponse
-	7,  // 13: buildapi.v1.OrganizationService.UpdateOrganization:output_type -> buildapi.v1.UpdateOrganizationResponse
-	10, // 14: buildapi.v1.OrganizationService.ListOrganizationMembers:output_type -> buildapi.v1.ListOrganizationMembersResponse
-	10, // [10:15] is the sub-list for method output_type
-	5,  // [5:10] is the sub-list for method input_type
+	8,  // 9: buildapi.v1.OrganizationService.DeleteOrganization:input_type -> buildapi.v1.DeleteOrganizationRequest
+	11, // 10: buildapi.v1.OrganizationService.ListOrganizationMembers:input_type -> buildapi.v1.ListOrganizationMembersRequest
+	1,  // 11: buildapi.v1.OrganizationService.ListOrganizations:output_type -> buildapi.v1.ListOrganizationsResponse
+	3,  // 12: buildapi.v1.OrganizationService.GetOrganization:output_type -> buildapi.v1.GetOrganizationResponse
+	5,  // 13: buildapi.v1.OrganizationService.CreateOrganization:output_type -> buildapi.v1.CreateOrganizationResponse
+	7,  // 14: buildapi.v1.OrganizationService.UpdateOrganization:output_type -> buildapi.v1.UpdateOrganizationResponse
+	9,  // 15: buildapi.v1.OrganizationService.DeleteOrganization:output_type -> buildapi.v1.DeleteOrganizationResponse
+	12, // 16: buildapi.v1.OrganizationService.ListOrganizationMembers:output_type -> buildapi.v1.ListOrganizationMembersResponse
+	11, // [11:17] is the sub-list for method output_type
+	5,  // [5:11] is the sub-list for method input_type
 	5,  // [5:5] is the sub-list for extension type_name
 	5,  // [5:5] is the sub-list for extension extendee
 	0,  // [0:5] is the sub-list for field type_name
@@ -783,7 +871,7 @@ func file_buildapi_v1_organizations_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_buildapi_v1_organizations_proto_rawDesc), len(file_buildapi_v1_organizations_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   12,
+			NumMessages:   14,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
