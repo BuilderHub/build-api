@@ -350,6 +350,94 @@ func (x *GetMeResponse) GetUser() *User {
 	return nil
 }
 
+type UpdateProfileRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Name          string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UpdateProfileRequest) Reset() {
+	*x = UpdateProfileRequest{}
+	mi := &file_buildapi_v1_auth_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UpdateProfileRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpdateProfileRequest) ProtoMessage() {}
+
+func (x *UpdateProfileRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_buildapi_v1_auth_proto_msgTypes[6]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UpdateProfileRequest.ProtoReflect.Descriptor instead.
+func (*UpdateProfileRequest) Descriptor() ([]byte, []int) {
+	return file_buildapi_v1_auth_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *UpdateProfileRequest) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+type UpdateProfileResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	User          *User                  `protobuf:"bytes,1,opt,name=user,proto3" json:"user,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UpdateProfileResponse) Reset() {
+	*x = UpdateProfileResponse{}
+	mi := &file_buildapi_v1_auth_proto_msgTypes[7]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UpdateProfileResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpdateProfileResponse) ProtoMessage() {}
+
+func (x *UpdateProfileResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_buildapi_v1_auth_proto_msgTypes[7]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UpdateProfileResponse.ProtoReflect.Descriptor instead.
+func (*UpdateProfileResponse) Descriptor() ([]byte, []int) {
+	return file_buildapi_v1_auth_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *UpdateProfileResponse) GetUser() *User {
+	if x != nil {
+		return x.User
+	}
+	return nil
+}
+
 type RefreshTokenRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	RefreshToken  string                 `protobuf:"bytes,1,opt,name=refresh_token,json=refreshToken,proto3" json:"refresh_token,omitempty"`
@@ -359,7 +447,7 @@ type RefreshTokenRequest struct {
 
 func (x *RefreshTokenRequest) Reset() {
 	*x = RefreshTokenRequest{}
-	mi := &file_buildapi_v1_auth_proto_msgTypes[6]
+	mi := &file_buildapi_v1_auth_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -371,7 +459,7 @@ func (x *RefreshTokenRequest) String() string {
 func (*RefreshTokenRequest) ProtoMessage() {}
 
 func (x *RefreshTokenRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_buildapi_v1_auth_proto_msgTypes[6]
+	mi := &file_buildapi_v1_auth_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -384,7 +472,7 @@ func (x *RefreshTokenRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RefreshTokenRequest.ProtoReflect.Descriptor instead.
 func (*RefreshTokenRequest) Descriptor() ([]byte, []int) {
-	return file_buildapi_v1_auth_proto_rawDescGZIP(), []int{6}
+	return file_buildapi_v1_auth_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *RefreshTokenRequest) GetRefreshToken() string {
@@ -404,7 +492,7 @@ type RefreshTokenResponse struct {
 
 func (x *RefreshTokenResponse) Reset() {
 	*x = RefreshTokenResponse{}
-	mi := &file_buildapi_v1_auth_proto_msgTypes[7]
+	mi := &file_buildapi_v1_auth_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -416,7 +504,7 @@ func (x *RefreshTokenResponse) String() string {
 func (*RefreshTokenResponse) ProtoMessage() {}
 
 func (x *RefreshTokenResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_buildapi_v1_auth_proto_msgTypes[7]
+	mi := &file_buildapi_v1_auth_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -429,7 +517,7 @@ func (x *RefreshTokenResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RefreshTokenResponse.ProtoReflect.Descriptor instead.
 func (*RefreshTokenResponse) Descriptor() ([]byte, []int) {
-	return file_buildapi_v1_auth_proto_rawDescGZIP(), []int{7}
+	return file_buildapi_v1_auth_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *RefreshTokenResponse) GetAccessToken() string {
@@ -458,7 +546,7 @@ type User struct {
 
 func (x *User) Reset() {
 	*x = User{}
-	mi := &file_buildapi_v1_auth_proto_msgTypes[8]
+	mi := &file_buildapi_v1_auth_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -470,7 +558,7 @@ func (x *User) String() string {
 func (*User) ProtoMessage() {}
 
 func (x *User) ProtoReflect() protoreflect.Message {
-	mi := &file_buildapi_v1_auth_proto_msgTypes[8]
+	mi := &file_buildapi_v1_auth_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -483,7 +571,7 @@ func (x *User) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use User.ProtoReflect.Descriptor instead.
 func (*User) Descriptor() ([]byte, []int) {
-	return file_buildapi_v1_auth_proto_rawDescGZIP(), []int{8}
+	return file_buildapi_v1_auth_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *User) GetId() string {
@@ -514,6 +602,372 @@ func (x *User) GetCreatedAt() int64 {
 	return 0
 }
 
+type CreateUserApiKeyRequest struct {
+	state  protoimpl.MessageState `protogen:"open.v1"`
+	Name   string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	Scopes []string               `protobuf:"bytes,2,rep,name=scopes,proto3" json:"scopes,omitempty"`
+	// Days until the key expires. If 0, the server uses a default (365 days). Range 1–3650 when set explicitly.
+	ExpiresInDays int32 `protobuf:"varint,3,opt,name=expires_in_days,json=expiresInDays,proto3" json:"expires_in_days,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CreateUserApiKeyRequest) Reset() {
+	*x = CreateUserApiKeyRequest{}
+	mi := &file_buildapi_v1_auth_proto_msgTypes[11]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CreateUserApiKeyRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CreateUserApiKeyRequest) ProtoMessage() {}
+
+func (x *CreateUserApiKeyRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_buildapi_v1_auth_proto_msgTypes[11]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CreateUserApiKeyRequest.ProtoReflect.Descriptor instead.
+func (*CreateUserApiKeyRequest) Descriptor() ([]byte, []int) {
+	return file_buildapi_v1_auth_proto_rawDescGZIP(), []int{11}
+}
+
+func (x *CreateUserApiKeyRequest) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *CreateUserApiKeyRequest) GetScopes() []string {
+	if x != nil {
+		return x.Scopes
+	}
+	return nil
+}
+
+func (x *CreateUserApiKeyRequest) GetExpiresInDays() int32 {
+	if x != nil {
+		return x.ExpiresInDays
+	}
+	return 0
+}
+
+type CreateUserApiKeyResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Key           *UserApiKeyMetadata    `protobuf:"bytes,1,opt,name=key,proto3" json:"key,omitempty"`
+	Token         string                 `protobuf:"bytes,2,opt,name=token,proto3" json:"token,omitempty"` // secret shown once
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CreateUserApiKeyResponse) Reset() {
+	*x = CreateUserApiKeyResponse{}
+	mi := &file_buildapi_v1_auth_proto_msgTypes[12]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CreateUserApiKeyResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CreateUserApiKeyResponse) ProtoMessage() {}
+
+func (x *CreateUserApiKeyResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_buildapi_v1_auth_proto_msgTypes[12]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CreateUserApiKeyResponse.ProtoReflect.Descriptor instead.
+func (*CreateUserApiKeyResponse) Descriptor() ([]byte, []int) {
+	return file_buildapi_v1_auth_proto_rawDescGZIP(), []int{12}
+}
+
+func (x *CreateUserApiKeyResponse) GetKey() *UserApiKeyMetadata {
+	if x != nil {
+		return x.Key
+	}
+	return nil
+}
+
+func (x *CreateUserApiKeyResponse) GetToken() string {
+	if x != nil {
+		return x.Token
+	}
+	return ""
+}
+
+type ListUserApiKeysRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListUserApiKeysRequest) Reset() {
+	*x = ListUserApiKeysRequest{}
+	mi := &file_buildapi_v1_auth_proto_msgTypes[13]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListUserApiKeysRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListUserApiKeysRequest) ProtoMessage() {}
+
+func (x *ListUserApiKeysRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_buildapi_v1_auth_proto_msgTypes[13]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListUserApiKeysRequest.ProtoReflect.Descriptor instead.
+func (*ListUserApiKeysRequest) Descriptor() ([]byte, []int) {
+	return file_buildapi_v1_auth_proto_rawDescGZIP(), []int{13}
+}
+
+type ListUserApiKeysResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Keys          []*UserApiKeyMetadata  `protobuf:"bytes,1,rep,name=keys,proto3" json:"keys,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListUserApiKeysResponse) Reset() {
+	*x = ListUserApiKeysResponse{}
+	mi := &file_buildapi_v1_auth_proto_msgTypes[14]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListUserApiKeysResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListUserApiKeysResponse) ProtoMessage() {}
+
+func (x *ListUserApiKeysResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_buildapi_v1_auth_proto_msgTypes[14]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListUserApiKeysResponse.ProtoReflect.Descriptor instead.
+func (*ListUserApiKeysResponse) Descriptor() ([]byte, []int) {
+	return file_buildapi_v1_auth_proto_rawDescGZIP(), []int{14}
+}
+
+func (x *ListUserApiKeysResponse) GetKeys() []*UserApiKeyMetadata {
+	if x != nil {
+		return x.Keys
+	}
+	return nil
+}
+
+type RevokeUserApiKeyRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *RevokeUserApiKeyRequest) Reset() {
+	*x = RevokeUserApiKeyRequest{}
+	mi := &file_buildapi_v1_auth_proto_msgTypes[15]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RevokeUserApiKeyRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RevokeUserApiKeyRequest) ProtoMessage() {}
+
+func (x *RevokeUserApiKeyRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_buildapi_v1_auth_proto_msgTypes[15]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RevokeUserApiKeyRequest.ProtoReflect.Descriptor instead.
+func (*RevokeUserApiKeyRequest) Descriptor() ([]byte, []int) {
+	return file_buildapi_v1_auth_proto_rawDescGZIP(), []int{15}
+}
+
+func (x *RevokeUserApiKeyRequest) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+type RevokeUserApiKeyResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *RevokeUserApiKeyResponse) Reset() {
+	*x = RevokeUserApiKeyResponse{}
+	mi := &file_buildapi_v1_auth_proto_msgTypes[16]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RevokeUserApiKeyResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RevokeUserApiKeyResponse) ProtoMessage() {}
+
+func (x *RevokeUserApiKeyResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_buildapi_v1_auth_proto_msgTypes[16]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RevokeUserApiKeyResponse.ProtoReflect.Descriptor instead.
+func (*RevokeUserApiKeyResponse) Descriptor() ([]byte, []int) {
+	return file_buildapi_v1_auth_proto_rawDescGZIP(), []int{16}
+}
+
+type UserApiKeyMetadata struct {
+	state      protoimpl.MessageState `protogen:"open.v1"`
+	Id         string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Name       string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	KeyPrefix  string                 `protobuf:"bytes,3,opt,name=key_prefix,json=keyPrefix,proto3" json:"key_prefix,omitempty"`
+	Scopes     []string               `protobuf:"bytes,4,rep,name=scopes,proto3" json:"scopes,omitempty"`
+	CreatedAt  int64                  `protobuf:"varint,5,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	LastUsedAt int64                  `protobuf:"varint,6,opt,name=last_used_at,json=lastUsedAt,proto3" json:"last_used_at,omitempty"`
+	// Unix seconds when the key stops working for API auth.
+	ExpiresAt     int64 `protobuf:"varint,7,opt,name=expires_at,json=expiresAt,proto3" json:"expires_at,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UserApiKeyMetadata) Reset() {
+	*x = UserApiKeyMetadata{}
+	mi := &file_buildapi_v1_auth_proto_msgTypes[17]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UserApiKeyMetadata) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UserApiKeyMetadata) ProtoMessage() {}
+
+func (x *UserApiKeyMetadata) ProtoReflect() protoreflect.Message {
+	mi := &file_buildapi_v1_auth_proto_msgTypes[17]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UserApiKeyMetadata.ProtoReflect.Descriptor instead.
+func (*UserApiKeyMetadata) Descriptor() ([]byte, []int) {
+	return file_buildapi_v1_auth_proto_rawDescGZIP(), []int{17}
+}
+
+func (x *UserApiKeyMetadata) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *UserApiKeyMetadata) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *UserApiKeyMetadata) GetKeyPrefix() string {
+	if x != nil {
+		return x.KeyPrefix
+	}
+	return ""
+}
+
+func (x *UserApiKeyMetadata) GetScopes() []string {
+	if x != nil {
+		return x.Scopes
+	}
+	return nil
+}
+
+func (x *UserApiKeyMetadata) GetCreatedAt() int64 {
+	if x != nil {
+		return x.CreatedAt
+	}
+	return 0
+}
+
+func (x *UserApiKeyMetadata) GetLastUsedAt() int64 {
+	if x != nil {
+		return x.LastUsedAt
+	}
+	return 0
+}
+
+func (x *UserApiKeyMetadata) GetExpiresAt() int64 {
+	if x != nil {
+		return x.ExpiresAt
+	}
+	return 0
+}
+
 var File_buildapi_v1_auth_proto protoreflect.FileDescriptor
 
 const file_buildapi_v1_auth_proto_rawDesc = "" +
@@ -540,6 +994,10 @@ const file_buildapi_v1_auth_proto_rawDesc = "" +
 	"expires_in\x18\x04 \x01(\x03R\texpiresIn\"\x0e\n" +
 	"\fGetMeRequest\"6\n" +
 	"\rGetMeResponse\x12%\n" +
+	"\x04user\x18\x01 \x01(\v2\x11.buildapi.v1.UserR\x04user\"*\n" +
+	"\x14UpdateProfileRequest\x12\x12\n" +
+	"\x04name\x18\x01 \x01(\tR\x04name\">\n" +
+	"\x15UpdateProfileResponse\x12%\n" +
 	"\x04user\x18\x01 \x01(\v2\x11.buildapi.v1.UserR\x04user\":\n" +
 	"\x13RefreshTokenRequest\x12#\n" +
 	"\rrefresh_token\x18\x01 \x01(\tR\frefreshToken\"X\n" +
@@ -552,12 +1010,41 @@ const file_buildapi_v1_auth_proto_rawDesc = "" +
 	"\x05email\x18\x02 \x01(\tR\x05email\x12\x12\n" +
 	"\x04name\x18\x03 \x01(\tR\x04name\x12\x1d\n" +
 	"\n" +
-	"created_at\x18\x04 \x01(\x03R\tcreatedAt2\x96\x03\n" +
+	"created_at\x18\x04 \x01(\x03R\tcreatedAt\"m\n" +
+	"\x17CreateUserApiKeyRequest\x12\x12\n" +
+	"\x04name\x18\x01 \x01(\tR\x04name\x12\x16\n" +
+	"\x06scopes\x18\x02 \x03(\tR\x06scopes\x12&\n" +
+	"\x0fexpires_in_days\x18\x03 \x01(\x05R\rexpiresInDays\"c\n" +
+	"\x18CreateUserApiKeyResponse\x121\n" +
+	"\x03key\x18\x01 \x01(\v2\x1f.buildapi.v1.UserApiKeyMetadataR\x03key\x12\x14\n" +
+	"\x05token\x18\x02 \x01(\tR\x05token\"\x18\n" +
+	"\x16ListUserApiKeysRequest\"N\n" +
+	"\x17ListUserApiKeysResponse\x123\n" +
+	"\x04keys\x18\x01 \x03(\v2\x1f.buildapi.v1.UserApiKeyMetadataR\x04keys\")\n" +
+	"\x17RevokeUserApiKeyRequest\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\"\x1a\n" +
+	"\x18RevokeUserApiKeyResponse\"\xcf\x01\n" +
+	"\x12UserApiKeyMetadata\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
+	"\x04name\x18\x02 \x01(\tR\x04name\x12\x1d\n" +
+	"\n" +
+	"key_prefix\x18\x03 \x01(\tR\tkeyPrefix\x12\x16\n" +
+	"\x06scopes\x18\x04 \x03(\tR\x06scopes\x12\x1d\n" +
+	"\n" +
+	"created_at\x18\x05 \x01(\x03R\tcreatedAt\x12 \n" +
+	"\flast_used_at\x18\x06 \x01(\x03R\n" +
+	"lastUsedAt\x12\x1d\n" +
+	"\n" +
+	"expires_at\x18\a \x01(\x03R\texpiresAt2\xff\x06\n" +
 	"\vAuthService\x12e\n" +
 	"\bRegister\x12\x1c.buildapi.v1.RegisterRequest\x1a\x1d.buildapi.v1.RegisterResponse\"\x1c\x82\xd3\xe4\x93\x02\x16:\x01*\"\x11/v1/auth/register\x12Y\n" +
 	"\x05Login\x12\x19.buildapi.v1.LoginRequest\x1a\x1a.buildapi.v1.LoginResponse\"\x19\x82\xd3\xe4\x93\x02\x13:\x01*\"\x0e/v1/auth/login\x12S\n" +
-	"\x05GetMe\x12\x19.buildapi.v1.GetMeRequest\x1a\x1a.buildapi.v1.GetMeResponse\"\x13\x82\xd3\xe4\x93\x02\r\x12\v/v1/auth/me\x12p\n" +
-	"\fRefreshToken\x12 .buildapi.v1.RefreshTokenRequest\x1a!.buildapi.v1.RefreshTokenResponse\"\x1b\x82\xd3\xe4\x93\x02\x15:\x01*\"\x10/v1/auth/refreshB@Z>github.com/builderhub/build-api/api/gen/buildapi/v1;buildapiv1b\x06proto3"
+	"\x05GetMe\x12\x19.buildapi.v1.GetMeRequest\x1a\x1a.buildapi.v1.GetMeResponse\"\x13\x82\xd3\xe4\x93\x02\r\x12\v/v1/auth/me\x12n\n" +
+	"\rUpdateProfile\x12!.buildapi.v1.UpdateProfileRequest\x1a\".buildapi.v1.UpdateProfileResponse\"\x16\x82\xd3\xe4\x93\x02\x10:\x01*2\v/v1/auth/me\x12p\n" +
+	"\fRefreshToken\x12 .buildapi.v1.RefreshTokenRequest\x1a!.buildapi.v1.RefreshTokenResponse\"\x1b\x82\xd3\xe4\x93\x02\x15:\x01*\"\x10/v1/auth/refresh\x12}\n" +
+	"\x10CreateUserApiKey\x12$.buildapi.v1.CreateUserApiKeyRequest\x1a%.buildapi.v1.CreateUserApiKeyResponse\"\x1c\x82\xd3\xe4\x93\x02\x16:\x01*\"\x11/v1/auth/api-keys\x12w\n" +
+	"\x0fListUserApiKeys\x12#.buildapi.v1.ListUserApiKeysRequest\x1a$.buildapi.v1.ListUserApiKeysResponse\"\x19\x82\xd3\xe4\x93\x02\x13\x12\x11/v1/auth/api-keys\x12\x7f\n" +
+	"\x10RevokeUserApiKey\x12$.buildapi.v1.RevokeUserApiKeyRequest\x1a%.buildapi.v1.RevokeUserApiKeyResponse\"\x1e\x82\xd3\xe4\x93\x02\x18*\x16/v1/auth/api-keys/{id}B@Z>github.com/builderhub/build-api/api/gen/buildapi/v1;buildapiv1b\x06proto3"
 
 var (
 	file_buildapi_v1_auth_proto_rawDescOnce sync.Once
@@ -571,35 +1058,55 @@ func file_buildapi_v1_auth_proto_rawDescGZIP() []byte {
 	return file_buildapi_v1_auth_proto_rawDescData
 }
 
-var file_buildapi_v1_auth_proto_msgTypes = make([]protoimpl.MessageInfo, 9)
+var file_buildapi_v1_auth_proto_msgTypes = make([]protoimpl.MessageInfo, 18)
 var file_buildapi_v1_auth_proto_goTypes = []any{
-	(*RegisterRequest)(nil),      // 0: buildapi.v1.RegisterRequest
-	(*RegisterResponse)(nil),     // 1: buildapi.v1.RegisterResponse
-	(*LoginRequest)(nil),         // 2: buildapi.v1.LoginRequest
-	(*LoginResponse)(nil),        // 3: buildapi.v1.LoginResponse
-	(*GetMeRequest)(nil),         // 4: buildapi.v1.GetMeRequest
-	(*GetMeResponse)(nil),        // 5: buildapi.v1.GetMeResponse
-	(*RefreshTokenRequest)(nil),  // 6: buildapi.v1.RefreshTokenRequest
-	(*RefreshTokenResponse)(nil), // 7: buildapi.v1.RefreshTokenResponse
-	(*User)(nil),                 // 8: buildapi.v1.User
+	(*RegisterRequest)(nil),          // 0: buildapi.v1.RegisterRequest
+	(*RegisterResponse)(nil),         // 1: buildapi.v1.RegisterResponse
+	(*LoginRequest)(nil),             // 2: buildapi.v1.LoginRequest
+	(*LoginResponse)(nil),            // 3: buildapi.v1.LoginResponse
+	(*GetMeRequest)(nil),             // 4: buildapi.v1.GetMeRequest
+	(*GetMeResponse)(nil),            // 5: buildapi.v1.GetMeResponse
+	(*UpdateProfileRequest)(nil),     // 6: buildapi.v1.UpdateProfileRequest
+	(*UpdateProfileResponse)(nil),    // 7: buildapi.v1.UpdateProfileResponse
+	(*RefreshTokenRequest)(nil),      // 8: buildapi.v1.RefreshTokenRequest
+	(*RefreshTokenResponse)(nil),     // 9: buildapi.v1.RefreshTokenResponse
+	(*User)(nil),                     // 10: buildapi.v1.User
+	(*CreateUserApiKeyRequest)(nil),  // 11: buildapi.v1.CreateUserApiKeyRequest
+	(*CreateUserApiKeyResponse)(nil), // 12: buildapi.v1.CreateUserApiKeyResponse
+	(*ListUserApiKeysRequest)(nil),   // 13: buildapi.v1.ListUserApiKeysRequest
+	(*ListUserApiKeysResponse)(nil),  // 14: buildapi.v1.ListUserApiKeysResponse
+	(*RevokeUserApiKeyRequest)(nil),  // 15: buildapi.v1.RevokeUserApiKeyRequest
+	(*RevokeUserApiKeyResponse)(nil), // 16: buildapi.v1.RevokeUserApiKeyResponse
+	(*UserApiKeyMetadata)(nil),       // 17: buildapi.v1.UserApiKeyMetadata
 }
 var file_buildapi_v1_auth_proto_depIdxs = []int32{
-	8, // 0: buildapi.v1.RegisterResponse.user:type_name -> buildapi.v1.User
-	8, // 1: buildapi.v1.LoginResponse.user:type_name -> buildapi.v1.User
-	8, // 2: buildapi.v1.GetMeResponse.user:type_name -> buildapi.v1.User
-	0, // 3: buildapi.v1.AuthService.Register:input_type -> buildapi.v1.RegisterRequest
-	2, // 4: buildapi.v1.AuthService.Login:input_type -> buildapi.v1.LoginRequest
-	4, // 5: buildapi.v1.AuthService.GetMe:input_type -> buildapi.v1.GetMeRequest
-	6, // 6: buildapi.v1.AuthService.RefreshToken:input_type -> buildapi.v1.RefreshTokenRequest
-	1, // 7: buildapi.v1.AuthService.Register:output_type -> buildapi.v1.RegisterResponse
-	3, // 8: buildapi.v1.AuthService.Login:output_type -> buildapi.v1.LoginResponse
-	5, // 9: buildapi.v1.AuthService.GetMe:output_type -> buildapi.v1.GetMeResponse
-	7, // 10: buildapi.v1.AuthService.RefreshToken:output_type -> buildapi.v1.RefreshTokenResponse
-	7, // [7:11] is the sub-list for method output_type
-	3, // [3:7] is the sub-list for method input_type
-	3, // [3:3] is the sub-list for extension type_name
-	3, // [3:3] is the sub-list for extension extendee
-	0, // [0:3] is the sub-list for field type_name
+	10, // 0: buildapi.v1.RegisterResponse.user:type_name -> buildapi.v1.User
+	10, // 1: buildapi.v1.LoginResponse.user:type_name -> buildapi.v1.User
+	10, // 2: buildapi.v1.GetMeResponse.user:type_name -> buildapi.v1.User
+	10, // 3: buildapi.v1.UpdateProfileResponse.user:type_name -> buildapi.v1.User
+	17, // 4: buildapi.v1.CreateUserApiKeyResponse.key:type_name -> buildapi.v1.UserApiKeyMetadata
+	17, // 5: buildapi.v1.ListUserApiKeysResponse.keys:type_name -> buildapi.v1.UserApiKeyMetadata
+	0,  // 6: buildapi.v1.AuthService.Register:input_type -> buildapi.v1.RegisterRequest
+	2,  // 7: buildapi.v1.AuthService.Login:input_type -> buildapi.v1.LoginRequest
+	4,  // 8: buildapi.v1.AuthService.GetMe:input_type -> buildapi.v1.GetMeRequest
+	6,  // 9: buildapi.v1.AuthService.UpdateProfile:input_type -> buildapi.v1.UpdateProfileRequest
+	8,  // 10: buildapi.v1.AuthService.RefreshToken:input_type -> buildapi.v1.RefreshTokenRequest
+	11, // 11: buildapi.v1.AuthService.CreateUserApiKey:input_type -> buildapi.v1.CreateUserApiKeyRequest
+	13, // 12: buildapi.v1.AuthService.ListUserApiKeys:input_type -> buildapi.v1.ListUserApiKeysRequest
+	15, // 13: buildapi.v1.AuthService.RevokeUserApiKey:input_type -> buildapi.v1.RevokeUserApiKeyRequest
+	1,  // 14: buildapi.v1.AuthService.Register:output_type -> buildapi.v1.RegisterResponse
+	3,  // 15: buildapi.v1.AuthService.Login:output_type -> buildapi.v1.LoginResponse
+	5,  // 16: buildapi.v1.AuthService.GetMe:output_type -> buildapi.v1.GetMeResponse
+	7,  // 17: buildapi.v1.AuthService.UpdateProfile:output_type -> buildapi.v1.UpdateProfileResponse
+	9,  // 18: buildapi.v1.AuthService.RefreshToken:output_type -> buildapi.v1.RefreshTokenResponse
+	12, // 19: buildapi.v1.AuthService.CreateUserApiKey:output_type -> buildapi.v1.CreateUserApiKeyResponse
+	14, // 20: buildapi.v1.AuthService.ListUserApiKeys:output_type -> buildapi.v1.ListUserApiKeysResponse
+	16, // 21: buildapi.v1.AuthService.RevokeUserApiKey:output_type -> buildapi.v1.RevokeUserApiKeyResponse
+	14, // [14:22] is the sub-list for method output_type
+	6,  // [6:14] is the sub-list for method input_type
+	6,  // [6:6] is the sub-list for extension type_name
+	6,  // [6:6] is the sub-list for extension extendee
+	0,  // [0:6] is the sub-list for field type_name
 }
 
 func init() { file_buildapi_v1_auth_proto_init() }
@@ -613,7 +1120,7 @@ func file_buildapi_v1_auth_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_buildapi_v1_auth_proto_rawDesc), len(file_buildapi_v1_auth_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   9,
+			NumMessages:   18,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

@@ -1,6 +1,7 @@
 package k8s
 
 import (
+	"context"
 	"path/filepath"
 
 	buildkitv1alpha1 "github.com/builderhub/build-operator/api/v1alpha1"
@@ -35,6 +36,15 @@ func NewClient(kubeconfig string) (*Client, error) {
 		return nil, err
 	}
 	return &Client{Client: client}, nil
+}
+
+// CountBuildkitBuildersInNamespace returns the number of BuildkitBuilder CRs in the namespace (org id).
+func (c *Client) CountBuildkitBuildersInNamespace(ctx context.Context, namespace string) (int32, error) {
+	var list buildkitv1alpha1.BuildkitBuilderList
+	if err := c.List(ctx, &list, ctrl.InNamespace(namespace)); err != nil {
+		return 0, err
+	}
+	return int32(len(list.Items)), nil
 }
 
 func restConfig(kubeconfig string) (*rest.Config, error) {

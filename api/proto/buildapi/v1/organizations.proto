@@ -95,6 +95,7 @@ message Organization {
   int32 builder_count = 6;
   int64 total_minutes = 7;
   int64 monthly_minutes = 8;
+  int32 member_count = 9;
 }
 
 message ListOrganizationMembersRequest {

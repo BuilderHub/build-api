@@ -29,12 +29,38 @@ service AuthService {
     option (google.api.http) = {get: "/v1/auth/me"};
   }
 
+  // UpdateProfile updates the current user's profile (e.g. display name).
+  rpc UpdateProfile(UpdateProfileRequest) returns (UpdateProfileResponse) {
+    option (google.api.http) = {
+      patch: "/v1/auth/me"
+      body: "*"
+    };
+  }
+
   // RefreshToken exchanges a refresh token for a new access token.
   rpc RefreshToken(RefreshTokenRequest) returns (RefreshTokenResponse) {
     option (google.api.http) = {
       post: "/v1/auth/refresh"
       body: "*"
     };
+  }
+
+  // CreateUserApiKey creates a new API key (JWT session only; plaintext token returned once).
+  rpc CreateUserApiKey(CreateUserApiKeyRequest) returns (CreateUserApiKeyResponse) {
+    option (google.api.http) = {
+      post: "/v1/auth/api-keys"
+      body: "*"
+    };
+  }
+
+  // ListUserApiKeys lists API keys for the current user (metadata only; JWT session only).
+  rpc ListUserApiKeys(ListUserApiKeysRequest) returns (ListUserApiKeysResponse) {
+    option (google.api.http) = {get: "/v1/auth/api-keys"};
+  }
+
+  // RevokeUserApiKey revokes an API key by id (JWT session only).
+  rpc RevokeUserApiKey(RevokeUserApiKeyRequest) returns (RevokeUserApiKeyResponse) {
+    option (google.api.http) = {delete: "/v1/auth/api-keys/{id}"};
   }
 }
 
@@ -69,6 +95,14 @@ message GetMeResponse {
   User user = 1;
 }
 
+message UpdateProfileRequest {
+  string name = 1;
+}
+
+message UpdateProfileResponse {
+  User user = 1;
+}
+
 message RefreshTokenRequest {
   string refresh_token = 1;
 }
@@ -83,4 +117,39 @@ message User {
   string email = 2;
   string name = 3;
   int64 created_at = 4;
+}
+
+message CreateUserApiKeyRequest {
+  string name = 1;
+  repeated string scopes = 2;
+  // Days until the key expires. 0 = default (365 days). -1 = never expires. Otherwise 1–3650.
+  int32 expires_in_days = 3;
+}
+
+message CreateUserApiKeyResponse {
+  UserApiKeyMetadata key = 1;
+  string token = 2; // secret shown once
+}
+
+message ListUserApiKeysRequest {}
+
+message ListUserApiKeysResponse {
+  repeated UserApiKeyMetadata keys = 1;
+}
+
+message RevokeUserApiKeyRequest {
+  string id = 1;
+}
+
+message RevokeUserApiKeyResponse {}
+
+message UserApiKeyMetadata {
+  string id = 1;
+  string name = 2;
+  string key_prefix = 3;
+  repeated string scopes = 4;
+  int64 created_at = 5;
+  int64 last_used_at = 6;
+  // Unix seconds when the key stops working for API auth. 0 = no expiry (never).
+  int64 expires_at = 7;
 }

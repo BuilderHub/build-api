@@ -496,6 +496,7 @@ type Organization struct {
 	BuilderCount   int32                  `protobuf:"varint,6,opt,name=builder_count,json=builderCount,proto3" json:"builder_count,omitempty"`
 	TotalMinutes   int64                  `protobuf:"varint,7,opt,name=total_minutes,json=totalMinutes,proto3" json:"total_minutes,omitempty"`
 	MonthlyMinutes int64                  `protobuf:"varint,8,opt,name=monthly_minutes,json=monthlyMinutes,proto3" json:"monthly_minutes,omitempty"`
+	MemberCount    int32                  `protobuf:"varint,9,opt,name=member_count,json=memberCount,proto3" json:"member_count,omitempty"`
 	unknownFields  protoimpl.UnknownFields
 	sizeCache      protoimpl.SizeCache
 }
@@ -582,6 +583,13 @@ func (x *Organization) GetTotalMinutes() int64 {
 func (x *Organization) GetMonthlyMinutes() int64 {
 	if x != nil {
 		return x.MonthlyMinutes
+	}
+	return 0
+}
+
+func (x *Organization) GetMemberCount() int32 {
+	if x != nil {
+		return x.MemberCount
 	}
 	return 0
 }
@@ -777,7 +785,7 @@ const file_buildapi_v1_organizations_proto_rawDesc = "" +
 	"\forganization\x18\x01 \x01(\v2\x19.buildapi.v1.OrganizationR\forganization\"+\n" +
 	"\x19DeleteOrganizationRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\"\x1c\n" +
-	"\x1aDeleteOrganizationResponse\"\xec\x01\n" +
+	"\x1aDeleteOrganizationResponse\"\x8f\x02\n" +
 	"\fOrganization\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x12\n" +
@@ -787,7 +795,8 @@ const file_buildapi_v1_organizations_proto_rawDesc = "" +
 	"created_at\x18\x05 \x01(\x03R\tcreatedAt\x12#\n" +
 	"\rbuilder_count\x18\x06 \x01(\x05R\fbuilderCount\x12#\n" +
 	"\rtotal_minutes\x18\a \x01(\x03R\ftotalMinutes\x12'\n" +
-	"\x0fmonthly_minutes\x18\b \x01(\x03R\x0emonthlyMinutes\"I\n" +
+	"\x0fmonthly_minutes\x18\b \x01(\x03R\x0emonthlyMinutes\x12!\n" +
+	"\fmember_count\x18\t \x01(\x05R\vmemberCount\"I\n" +
 	"\x1eListOrganizationMembersRequest\x12'\n" +
 	"\x0forganization_id\x18\x01 \x01(\tR\x0eorganizationId\"\\\n" +
 	"\x1fListOrganizationMembersResponse\x129\n" +

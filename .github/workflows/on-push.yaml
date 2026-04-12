@@ -17,11 +17,11 @@ jobs:
       packages: write
     uses: builderhub/actions-internal/.github/workflows/build-push-image.yaml@main
     with:
-      build-type: dockerfile
       image-name: build-api
       dockerfile: Dockerfile
       context: .
       buildx-args: --secret id=netrc,env=SECRET_SLOT_0
+      push-to-registry: ${{ github.event_name == 'push' }}
     secrets:
       registry-password: ${{ secrets.GITHUB_TOKEN }}
       secret-slot-0: |

@@ -40,7 +40,8 @@ func (s *Service) ListOrganizations(ctx context.Context, req *buildapiv1.ListOrg
 	}
 
 	rows, err := s.pool.Query(ctx, `
-		SELECT o.id, o.name, o.slug, o.plan, EXTRACT(EPOCH FROM o.created_at)::bigint
+		SELECT o.id, o.name, o.slug, o.plan, EXTRACT(EPOCH FROM o.created_at)::bigint,
+			(SELECT COUNT(*)::bigint FROM organization_members om WHERE om.organization_id = o.id)
 		FROM organizations o
 		INNER JOIN organization_members m ON m.organization_id = o.id
 		WHERE m.user_id = $1
@@ -54,19 +55,21 @@ func (s *Service) ListOrganizations(ctx context.Context, req *buildapiv1.ListOrg
 	var orgs []*buildapiv1.Organization
 	for rows.Next() {
 		var id, name, slug, plan string
-		var createdAt int64
-		if err := rows.Scan(&id, &name, &slug, &plan, &createdAt); err != nil {
+		var createdAt, memberCount int64
+		if err := rows.Scan(&id, &name, &slug, &plan, &createdAt, &memberCount); err != nil {
 			return nil, status.Errorf(codes.Internal, "scan organization: %v", err)
 		}
+		bc := s.countBuildersInNamespace(ctx, id)
 		orgs = append(orgs, &buildapiv1.Organization{
 			Id:             id,
 			Name:           name,
 			Slug:           slug,
 			Plan:           plan,
 			CreatedAt:      createdAt,
-			BuilderCount:   0,
+			BuilderCount:   bc,
 			TotalMinutes:   0,
 			MonthlyMinutes: 0,
+			MemberCount:    int32(memberCount),
 		})
 	}
 	if err := rows.Err(); err != nil {
@@ -86,19 +89,22 @@ func (s *Service) GetOrganization(ctx context.Context, req *buildapiv1.GetOrgani
 	}
 
 	var id, name, slug, plan string
-	var createdAt int64
+	var createdAt, memberCount int64
 	err := s.pool.QueryRow(ctx, `
-		SELECT o.id, o.name, o.slug, o.plan, EXTRACT(EPOCH FROM o.created_at)::bigint
+		SELECT o.id, o.name, o.slug, o.plan, EXTRACT(EPOCH FROM o.created_at)::bigint,
+			(SELECT COUNT(*)::bigint FROM organization_members om WHERE om.organization_id = o.id)
 		FROM organizations o
 		INNER JOIN organization_members m ON m.organization_id = o.id
 		WHERE o.id = $1 AND m.user_id = $2
-	`, req.Id, userID).Scan(&id, &name, &slug, &plan, &createdAt)
+	`, req.Id, userID).Scan(&id, &name, &slug, &plan, &createdAt, &memberCount)
 	if err != nil {
 		if err == pgx.ErrNoRows {
 			return nil, status.Error(codes.NotFound, "organization not found")
 		}
 		return nil, status.Errorf(codes.Internal, "get organization: %v", err)
 	}
+
+	bc := s.countBuildersInNamespace(ctx, id)
 
 	return &buildapiv1.GetOrganizationResponse{
 		Organization: &buildapiv1.Organization{
@@ -107,9 +113,10 @@ func (s *Service) GetOrganization(ctx context.Context, req *buildapiv1.GetOrgani
 			Slug:           slug,
 			Plan:           plan,
 			CreatedAt:      createdAt,
-			BuilderCount:   0,
+			BuilderCount:   bc,
 			TotalMinutes:   0,
 			MonthlyMinutes: 0,
+			MemberCount:    int32(memberCount),
 		},
 	}, nil
 }
@@ -166,6 +173,8 @@ func (s *Service) CreateOrganization(ctx context.Context, req *buildapiv1.Create
 	var createdAt int64
 	_ = s.pool.QueryRow(ctx, `SELECT EXTRACT(EPOCH FROM created_at)::bigint FROM organizations WHERE id = $1`, orgID).Scan(&createdAt)
 
+	bc := s.countBuildersInNamespace(ctx, orgID)
+
 	s.log.Infow("organization created", "id", orgID, "slug", slug, "owner", userID)
 	return &buildapiv1.CreateOrganizationResponse{
 		Organization: &buildapiv1.Organization{
@@ -174,9 +183,10 @@ func (s *Service) CreateOrganization(ctx context.Context, req *buildapiv1.Create
 			Slug:           slug,
 			Plan:           plan,
 			CreatedAt:      createdAt,
-			BuilderCount:   0,
+			BuilderCount:   bc,
 			TotalMinutes:   0,
 			MonthlyMinutes: 0,
+			MemberCount:    1,
 		},
 	}, nil
 }
@@ -354,6 +364,15 @@ func (s *Service) ListOrganizationMembers(ctx context.Context, req *buildapiv1.L
 	}
 
 	return &buildapiv1.ListOrganizationMembersResponse{Members: members}, nil
+}
+
+func (s *Service) countBuildersInNamespace(ctx context.Context, orgID string) int32 {
+	n, err := s.k8s.CountBuildkitBuildersInNamespace(ctx, orgID)
+	if err != nil {
+		s.log.Warnf("count builders in namespace: %v", err)
+		return 0
+	}
+	return n
 }
 
 func isUniqueViolation(err error) bool {

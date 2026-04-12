@@ -19,10 +19,14 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	AuthService_Register_FullMethodName     = "/buildapi.v1.AuthService/Register"
-	AuthService_Login_FullMethodName        = "/buildapi.v1.AuthService/Login"
-	AuthService_GetMe_FullMethodName        = "/buildapi.v1.AuthService/GetMe"
-	AuthService_RefreshToken_FullMethodName = "/buildapi.v1.AuthService/RefreshToken"
+	AuthService_Register_FullMethodName         = "/buildapi.v1.AuthService/Register"
+	AuthService_Login_FullMethodName            = "/buildapi.v1.AuthService/Login"
+	AuthService_GetMe_FullMethodName            = "/buildapi.v1.AuthService/GetMe"
+	AuthService_UpdateProfile_FullMethodName    = "/buildapi.v1.AuthService/UpdateProfile"
+	AuthService_RefreshToken_FullMethodName     = "/buildapi.v1.AuthService/RefreshToken"
+	AuthService_CreateUserApiKey_FullMethodName = "/buildapi.v1.AuthService/CreateUserApiKey"
+	AuthService_ListUserApiKeys_FullMethodName  = "/buildapi.v1.AuthService/ListUserApiKeys"
+	AuthService_RevokeUserApiKey_FullMethodName = "/buildapi.v1.AuthService/RevokeUserApiKey"
 )
 
 // AuthServiceClient is the client API for AuthService service.
@@ -37,8 +41,16 @@ type AuthServiceClient interface {
 	Login(ctx context.Context, in *LoginRequest, opts ...grpc.CallOption) (*LoginResponse, error)
 	// GetMe returns the current authenticated user.
 	GetMe(ctx context.Context, in *GetMeRequest, opts ...grpc.CallOption) (*GetMeResponse, error)
+	// UpdateProfile updates the current user's profile (e.g. display name).
+	UpdateProfile(ctx context.Context, in *UpdateProfileRequest, opts ...grpc.CallOption) (*UpdateProfileResponse, error)
 	// RefreshToken exchanges a refresh token for a new access token.
 	RefreshToken(ctx context.Context, in *RefreshTokenRequest, opts ...grpc.CallOption) (*RefreshTokenResponse, error)
+	// CreateUserApiKey creates a new API key (JWT session only; plaintext token returned once).
+	CreateUserApiKey(ctx context.Context, in *CreateUserApiKeyRequest, opts ...grpc.CallOption) (*CreateUserApiKeyResponse, error)
+	// ListUserApiKeys lists API keys for the current user (metadata only; JWT session only).
+	ListUserApiKeys(ctx context.Context, in *ListUserApiKeysRequest, opts ...grpc.CallOption) (*ListUserApiKeysResponse, error)
+	// RevokeUserApiKey revokes an API key by id (JWT session only).
+	RevokeUserApiKey(ctx context.Context, in *RevokeUserApiKeyRequest, opts ...grpc.CallOption) (*RevokeUserApiKeyResponse, error)
 }
 
 type authServiceClient struct {
@@ -79,10 +91,50 @@ func (c *authServiceClient) GetMe(ctx context.Context, in *GetMeRequest, opts ..
 	return out, nil
 }
 
+func (c *authServiceClient) UpdateProfile(ctx context.Context, in *UpdateProfileRequest, opts ...grpc.CallOption) (*UpdateProfileResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(UpdateProfileResponse)
+	err := c.cc.Invoke(ctx, AuthService_UpdateProfile_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *authServiceClient) RefreshToken(ctx context.Context, in *RefreshTokenRequest, opts ...grpc.CallOption) (*RefreshTokenResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(RefreshTokenResponse)
 	err := c.cc.Invoke(ctx, AuthService_RefreshToken_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *authServiceClient) CreateUserApiKey(ctx context.Context, in *CreateUserApiKeyRequest, opts ...grpc.CallOption) (*CreateUserApiKeyResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(CreateUserApiKeyResponse)
+	err := c.cc.Invoke(ctx, AuthService_CreateUserApiKey_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *authServiceClient) ListUserApiKeys(ctx context.Context, in *ListUserApiKeysRequest, opts ...grpc.CallOption) (*ListUserApiKeysResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ListUserApiKeysResponse)
+	err := c.cc.Invoke(ctx, AuthService_ListUserApiKeys_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *authServiceClient) RevokeUserApiKey(ctx context.Context, in *RevokeUserApiKeyRequest, opts ...grpc.CallOption) (*RevokeUserApiKeyResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(RevokeUserApiKeyResponse)
+	err := c.cc.Invoke(ctx, AuthService_RevokeUserApiKey_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -101,8 +153,16 @@ type AuthServiceServer interface {
 	Login(context.Context, *LoginRequest) (*LoginResponse, error)
 	// GetMe returns the current authenticated user.
 	GetMe(context.Context, *GetMeRequest) (*GetMeResponse, error)
+	// UpdateProfile updates the current user's profile (e.g. display name).
+	UpdateProfile(context.Context, *UpdateProfileRequest) (*UpdateProfileResponse, error)
 	// RefreshToken exchanges a refresh token for a new access token.
 	RefreshToken(context.Context, *RefreshTokenRequest) (*RefreshTokenResponse, error)
+	// CreateUserApiKey creates a new API key (JWT session only; plaintext token returned once).
+	CreateUserApiKey(context.Context, *CreateUserApiKeyRequest) (*CreateUserApiKeyResponse, error)
+	// ListUserApiKeys lists API keys for the current user (metadata only; JWT session only).
+	ListUserApiKeys(context.Context, *ListUserApiKeysRequest) (*ListUserApiKeysResponse, error)
+	// RevokeUserApiKey revokes an API key by id (JWT session only).
+	RevokeUserApiKey(context.Context, *RevokeUserApiKeyRequest) (*RevokeUserApiKeyResponse, error)
 	mustEmbedUnimplementedAuthServiceServer()
 }
 
@@ -122,8 +182,20 @@ func (UnimplementedAuthServiceServer) Login(context.Context, *LoginRequest) (*Lo
 func (UnimplementedAuthServiceServer) GetMe(context.Context, *GetMeRequest) (*GetMeResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetMe not implemented")
 }
+func (UnimplementedAuthServiceServer) UpdateProfile(context.Context, *UpdateProfileRequest) (*UpdateProfileResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method UpdateProfile not implemented")
+}
 func (UnimplementedAuthServiceServer) RefreshToken(context.Context, *RefreshTokenRequest) (*RefreshTokenResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method RefreshToken not implemented")
+}
+func (UnimplementedAuthServiceServer) CreateUserApiKey(context.Context, *CreateUserApiKeyRequest) (*CreateUserApiKeyResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method CreateUserApiKey not implemented")
+}
+func (UnimplementedAuthServiceServer) ListUserApiKeys(context.Context, *ListUserApiKeysRequest) (*ListUserApiKeysResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ListUserApiKeys not implemented")
+}
+func (UnimplementedAuthServiceServer) RevokeUserApiKey(context.Context, *RevokeUserApiKeyRequest) (*RevokeUserApiKeyResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method RevokeUserApiKey not implemented")
 }
 func (UnimplementedAuthServiceServer) mustEmbedUnimplementedAuthServiceServer() {}
 func (UnimplementedAuthServiceServer) testEmbeddedByValue()                     {}
@@ -200,6 +272,24 @@ func _AuthService_GetMe_Handler(srv interface{}, ctx context.Context, dec func(i
 	return interceptor(ctx, in, info, handler)
 }
 
+func _AuthService_UpdateProfile_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateProfileRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AuthServiceServer).UpdateProfile(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AuthService_UpdateProfile_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AuthServiceServer).UpdateProfile(ctx, req.(*UpdateProfileRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _AuthService_RefreshToken_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(RefreshTokenRequest)
 	if err := dec(in); err != nil {
@@ -214,6 +304,60 @@ func _AuthService_RefreshToken_Handler(srv interface{}, ctx context.Context, dec
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(AuthServiceServer).RefreshToken(ctx, req.(*RefreshTokenRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AuthService_CreateUserApiKey_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateUserApiKeyRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AuthServiceServer).CreateUserApiKey(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AuthService_CreateUserApiKey_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AuthServiceServer).CreateUserApiKey(ctx, req.(*CreateUserApiKeyRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AuthService_ListUserApiKeys_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListUserApiKeysRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AuthServiceServer).ListUserApiKeys(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AuthService_ListUserApiKeys_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AuthServiceServer).ListUserApiKeys(ctx, req.(*ListUserApiKeysRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AuthService_RevokeUserApiKey_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RevokeUserApiKeyRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AuthServiceServer).RevokeUserApiKey(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AuthService_RevokeUserApiKey_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AuthServiceServer).RevokeUserApiKey(ctx, req.(*RevokeUserApiKeyRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -238,8 +382,24 @@ var AuthService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _AuthService_GetMe_Handler,
 		},
 		{
+			MethodName: "UpdateProfile",
+			Handler:    _AuthService_UpdateProfile_Handler,
+		},
+		{
 			MethodName: "RefreshToken",
 			Handler:    _AuthService_RefreshToken_Handler,
+		},
+		{
+			MethodName: "CreateUserApiKey",
+			Handler:    _AuthService_CreateUserApiKey_Handler,
+		},
+		{
+			MethodName: "ListUserApiKeys",
+			Handler:    _AuthService_ListUserApiKeys_Handler,
+		},
+		{
+			MethodName: "RevokeUserApiKey",
+			Handler:    _AuthService_RevokeUserApiKey_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

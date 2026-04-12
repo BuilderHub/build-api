@@ -4,6 +4,7 @@ import (
 	"context"
 	"strings"
 
+	"github.com/builderhub/build-api/internal/db"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
@@ -18,14 +19,40 @@ type AuthLogger interface {
 // PublicMethods are RPC full names that do not require authentication.
 var PublicMethods = map[string]bool{
 	"/buildapi.v1.AuthService/Register":    true,
-	"/buildapi.v1.AuthService/Login":       true,
+	"/buildapi.v1.AuthService/Login":        true,
 	"/buildapi.v1.AuthService/RefreshToken": true,
 	"/buildapi.v1.BuildAPI/HealthCheck":    true,
 }
 
-// UnaryServerInterceptor returns a gRPC unary interceptor that validates JWT
-// for protected methods and injects user ID into context. log must be non-nil.
-func UnaryServerInterceptor(jwt *JWTManager, log AuthLogger) grpc.UnaryServerInterceptor {
+func looksLikeJWT(token string) bool {
+	parts := strings.Split(token, ".")
+	return len(parts) == 3 && parts[0] != "" && parts[1] != "" && parts[2] != ""
+}
+
+func enforceAccess(fullMethod string, p *Principal) error {
+	if JWTOnlyMethods[fullMethod] {
+		if !p.FullAccess {
+			return status.Error(codes.PermissionDenied, "this operation requires a browser session")
+		}
+		return nil
+	}
+	if req, ok := MethodRequiredScope[fullMethod]; ok {
+		if p.FullAccess {
+			return nil
+		}
+		if hasScope(p.Scopes, req) {
+			return nil
+		}
+		return status.Error(codes.PermissionDenied, "insufficient API key scope")
+	}
+	if p.FullAccess {
+		return nil
+	}
+	return status.Error(codes.PermissionDenied, "insufficient API key scope")
+}
+
+// UnaryServerInterceptor validates JWT or API keys, attaches identity, and enforces scopes.
+func UnaryServerInterceptor(jwt *JWTManager, pool *db.Pool, log AuthLogger) grpc.UnaryServerInterceptor {
 	return func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
 		if PublicMethods[info.FullMethod] {
 			return handler(ctx, req)
@@ -34,18 +61,20 @@ func UnaryServerInterceptor(jwt *JWTManager, log AuthLogger) grpc.UnaryServerInt
 		if err != nil {
 			return nil, err
 		}
-		claims, err := jwt.ValidateAccessToken(token)
+		p, err := authenticate(ctx, pool, jwt, token, log, info.FullMethod)
 		if err != nil {
-			log.Warnf("auth failed method=%s reason=token_validation err=%v", info.FullMethod, err)
-			return nil, status.Error(codes.Unauthenticated, "invalid or expired token")
+			return nil, err
 		}
-		ctx = WithUserID(ctx, claims.UserID)
+		ctx = WithPrincipal(ctx, p)
+		if err := enforceAccess(info.FullMethod, p); err != nil {
+			return nil, err
+		}
 		return handler(ctx, req)
 	}
 }
 
-// StreamServerInterceptor returns a gRPC stream interceptor for JWT auth. log must be non-nil.
-func StreamServerInterceptor(jwt *JWTManager, log AuthLogger) grpc.StreamServerInterceptor {
+// StreamServerInterceptor validates JWT or API keys for streaming RPCs.
+func StreamServerInterceptor(jwt *JWTManager, pool *db.Pool, log AuthLogger) grpc.StreamServerInterceptor {
 	return func(srv interface{}, ss grpc.ServerStream, info *grpc.StreamServerInfo, handler grpc.StreamHandler) error {
 		if PublicMethods[info.FullMethod] {
 			return handler(srv, ss)
@@ -55,14 +84,37 @@ func StreamServerInterceptor(jwt *JWTManager, log AuthLogger) grpc.StreamServerI
 		if err != nil {
 			return err
 		}
-		claims, err := jwt.ValidateAccessToken(token)
+		p, err := authenticate(ctx, pool, jwt, token, log, info.FullMethod)
 		if err != nil {
-			log.Warnf("auth failed method=%s reason=token_validation err=%v", info.FullMethod, err)
-			return status.Error(codes.Unauthenticated, "invalid or expired token")
+			return err
 		}
-		ctx = WithUserID(ctx, claims.UserID)
+		ctx = WithPrincipal(ctx, p)
+		if err := enforceAccess(info.FullMethod, p); err != nil {
+			return err
+		}
 		return handler(srv, &streamWithContext{ServerStream: ss, ctx: ctx})
 	}
+}
+
+func authenticate(ctx context.Context, pool *db.Pool, jwt *JWTManager, token string, log AuthLogger, method string) (*Principal, error) {
+	if looksLikeJWT(token) {
+		claims, err := jwt.ValidateAccessToken(token)
+		if err != nil {
+			log.Warnf("auth failed method=%s reason=jwt_validation err=%v", method, err)
+			return nil, status.Error(codes.Unauthenticated, "invalid or expired token")
+		}
+		return &Principal{UserID: claims.UserID, FullAccess: true}, nil
+	}
+	if !strings.HasPrefix(token, "bh_") {
+		log.Warnf("auth failed method=%s reason=unknown_token_shape", method)
+		return nil, status.Error(codes.Unauthenticated, "invalid or expired token")
+	}
+	userID, scopes, err := LookupAPIKey(ctx, pool, token)
+	if err != nil {
+		log.Warnf("auth failed method=%s reason=api_key_lookup err=%v", method, err)
+		return nil, status.Error(codes.Unauthenticated, "invalid or expired token")
+	}
+	return &Principal{UserID: userID, FullAccess: false, Scopes: scopes}, nil
 }
 
 type streamWithContext struct {
@@ -90,7 +142,7 @@ func extractBearerToken(ctx context.Context, method string, log AuthLogger) (str
 		if !ok || s == "" {
 			continue
 		}
-		s = strings.TrimSpace(s) // JWT must be 3 dot-separated segments; stray newlines/spaces cause "invalid number of segments"
+		s = strings.TrimSpace(s)
 		if s != "" {
 			return s, nil
 		}

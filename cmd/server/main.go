@@ -55,8 +55,8 @@ func main() {
 	orgSvc := organizations.NewService(pool, k8sClient, log.Sugar())
 
 	grpcServer := grpc.NewServer(
-		grpc.UnaryInterceptor(auth.UnaryServerInterceptor(jwt, sugar)),
-		grpc.StreamInterceptor(auth.StreamServerInterceptor(jwt, sugar)),
+		grpc.UnaryInterceptor(auth.UnaryServerInterceptor(jwt, pool, sugar)),
+		grpc.StreamInterceptor(auth.StreamServerInterceptor(jwt, pool, sugar)),
 	)
 	buildapiv1.RegisterAuthServiceServer(grpcServer, authSvc)
 	buildapiv1.RegisterBuildAPIServer(grpcServer, buildAPISvc)
