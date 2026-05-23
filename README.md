@@ -69,3 +69,7 @@ helm install build-api helm/build-api -n builderhub --create-namespace \
   --set image.repository=ghcr.io/builderhub/build-api \
   --set image.tag=v0.0.0-beta.0
 ```
+
+## License
+
+This project is licensed under the [MIT License](LICENSE).
