@@ -4,7 +4,7 @@ BuilderHub public-facing API. Manages BuildkitBuilder CRs via gRPC and REST.
 
 ## Features
 
-- **gRPC** on port 9090 (ListBuilders, GetBuilder, CreateBuilder, WakeBuilder, HealthCheck)
+- **gRPC** on port 9090 (builders, organizations, templates, auth, health)
 - **REST** via grpc-gateway on port 8080
 - **Swagger UI** at `/docs`, OpenAPI spec at `/openapi.json`
 - **Health** endpoints at `/health` and `/ready`
@@ -48,6 +48,11 @@ Set `GOPRIVATE=github.com/builderhub/*` and configure `~/.netrc` for private mod
 | GET | /v1/namespaces/{ns}/builders/{name} | Get builder |
 | POST | /v1/namespaces/{ns}/builders | Create builder |
 | POST | /v1/namespaces/{ns}/builders/{name}/wake | Wake sleepy builder |
+| GET | /v1/namespaces/{ns}/templates | List builder templates (org/namespace-scoped) |
+| GET | /v1/namespaces/{ns}/templates/{name} | Get builder template |
+| POST | /v1/namespaces/{ns}/templates | Create builder template |
+| PATCH | /v1/namespaces/{ns}/templates/{name} | Update builder template |
+| DELETE | /v1/namespaces/{ns}/templates/{name} | Delete builder template |
 | GET | /v1/health | Health check |
 | GET | /docs | Swagger UI |
 | GET | /openapi.json | OpenAPI spec |
@@ -69,6 +74,16 @@ helm install build-api helm/build-api -n builderhub --create-namespace \
   --set image.repository=ghcr.io/builderhub/build-api \
   --set image.tag=v0.0.0-beta.0
 ```
+
+## Scopes for API keys
+
+When creating API keys (via AuthService), the following scopes are available:
+
+- `builders:read`, `builders:write`
+- `organizations:read`, `organizations:write`
+- `templates:read`, `templates:write` (new — for managing BuildkitBuilderTemplates)
+
+JWT sessions from `auth login` have full access.
 
 ## License
 

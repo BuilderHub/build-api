@@ -5,6 +5,7 @@ import (
 	"path/filepath"
 
 	buildkitv1alpha1 "github.com/builderhub/build-operator/api/v1alpha1"
+	templatev1alpha1 "github.com/builderhub/build-operator/api/buildertemplate/v1alpha1"
 	"k8s.io/apimachinery/pkg/runtime"
 	clientgoscheme "k8s.io/client-go/kubernetes/scheme"
 	"k8s.io/client-go/rest"
@@ -13,7 +14,7 @@ import (
 	ctrl "sigs.k8s.io/controller-runtime/pkg/client"
 )
 
-// Client wraps controller-runtime client for BuildkitBuilder CRs.
+// Client wraps controller-runtime client for BuildkitBuilder and BuildkitBuilderTemplate CRs.
 type Client struct {
 	ctrl.Client
 }
@@ -29,6 +30,9 @@ func NewClient(kubeconfig string) (*Client, error) {
 		return nil, err
 	}
 	if err := buildkitv1alpha1.AddToScheme(scheme); err != nil {
+		return nil, err
+	}
+	if err := templatev1alpha1.AddToScheme(scheme); err != nil {
 		return nil, err
 	}
 	client, err := ctrl.New(config, ctrl.Options{Scheme: scheme})

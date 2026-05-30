@@ -14,6 +14,7 @@ import (
 	"github.com/builderhub/build-api/internal/db"
 	"github.com/builderhub/build-api/internal/organizations"
 	"github.com/builderhub/build-api/internal/server"
+	"github.com/builderhub/build-api/internal/templates"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
@@ -53,6 +54,7 @@ func main() {
 	authSvc := auth.NewAuthService(pool, jwt, log.Sugar())
 	buildAPISvc := server.NewBuildAPIService(k8sClient, pool, sugar)
 	orgSvc := organizations.NewService(pool, k8sClient, log.Sugar())
+	templateSvc := templates.NewService(k8sClient, pool, log.Sugar())
 
 	grpcServer := grpc.NewServer(
 		grpc.UnaryInterceptor(auth.UnaryServerInterceptor(jwt, pool, sugar)),
@@ -61,6 +63,7 @@ func main() {
 	buildapiv1.RegisterAuthServiceServer(grpcServer, authSvc)
 	buildapiv1.RegisterBuildAPIServer(grpcServer, buildAPISvc)
 	buildapiv1.RegisterOrganizationServiceServer(grpcServer, orgSvc)
+	buildapiv1.RegisterTemplateServiceServer(grpcServer, templateSvc)
 	reflection.Register(grpcServer)
 
 	lis, err := net.Listen("tcp", grpcAddr)
@@ -90,6 +93,9 @@ func main() {
 	}
 	if err := buildapiv1.RegisterOrganizationServiceHandlerFromEndpoint(ctx, gwMux, grpcAddr, opts); err != nil {
 		sugar.Fatalf("register organization gateway: %v", err)
+	}
+	if err := buildapiv1.RegisterTemplateServiceHandlerFromEndpoint(ctx, gwMux, grpcAddr, opts); err != nil {
+		sugar.Fatalf("register template gateway: %v", err)
 	}
 
 	rootMux := http.NewServeMux()
