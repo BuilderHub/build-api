@@ -15,14 +15,14 @@ jobs:
     permissions:
       contents: read
       packages: write
-    uses: builderhub/actions-internal/.github/workflows/build-push-image.yaml@main
+    uses: BuilderHub/actions/.github/workflows/buildah-build-push-workflow.yaml@v0.1.0-beta.2
     with:
-      image-name: build-api
-      dockerfile: Dockerfile
+      image: build-api
+      tags: "latest ${{ github.sha }}"
+      containerfiles: Dockerfile
       context: .
-      buildx-args: --secret id=netrc,env=SECRET_SLOT_0
-      push-to-registry: ${{ github.event_name == 'push' }}
+      registry: ghcr.io/builderhub
+      push: ${{ github.event_name == 'push' }}
     secrets:
-      registry-password: ${{ secrets.GITHUB_TOKEN }}
-      secret-slot-0: |
-        machine github.com login x-access-token password ${{ secrets.ORG_REPO_READ_ONLY }}
+      REGISTRY_USERNAME: ${{ github.actor }}
+      REGISTRY_PASSWORD: ${{ secrets.GITHUB_TOKEN }}

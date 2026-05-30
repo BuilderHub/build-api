@@ -62,10 +62,8 @@ Set `GOPRIVATE=github.com/builderhub/*` and configure `~/.netrc` for private mod
 ### Docker
 
 ```bash
-docker buildx build -f Dockerfile --secret id=netrc,env=SECRET_SLOT_0 .
+docker buildx build -f Dockerfile .
 ```
-
-Requires `SECRET_SLOT_0` env var with netrc content for private repo access.
 
 ### Helm
 
