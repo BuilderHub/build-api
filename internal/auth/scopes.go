@@ -8,6 +8,8 @@ const (
 	ScopeOrganizationsWrite = "organizations:write"
 	ScopeBuildersRead       = "builders:read"
 	ScopeBuildersWrite      = "builders:write"
+	ScopeTemplatesRead      = "templates:read"
+	ScopeTemplatesWrite     = "templates:write"
 )
 
 // ValidScopes is the allowlist when creating API keys.
@@ -16,6 +18,8 @@ var ValidScopes = map[string]struct{}{
 	ScopeOrganizationsWrite: {},
 	ScopeBuildersRead:       {},
 	ScopeBuildersWrite:      {},
+	ScopeTemplatesRead:      {},
+	ScopeTemplatesWrite:     {},
 }
 
 // JWTOnlyMethods require a browser session (JWT); API keys are rejected.
@@ -42,6 +46,12 @@ var MethodRequiredScope = map[string]string{
 	buildapiv1.BuildAPI_UpdateBuilder_FullMethodName: ScopeBuildersWrite,
 	buildapiv1.BuildAPI_DeleteBuilder_FullMethodName: ScopeBuildersWrite,
 	buildapiv1.BuildAPI_WakeBuilder_FullMethodName:   ScopeBuildersWrite,
+
+	buildapiv1.TemplateService_ListTemplates_FullMethodName:  ScopeTemplatesRead,
+	buildapiv1.TemplateService_GetTemplate_FullMethodName:    ScopeTemplatesRead,
+	buildapiv1.TemplateService_CreateTemplate_FullMethodName: ScopeTemplatesWrite,
+	buildapiv1.TemplateService_UpdateTemplate_FullMethodName: ScopeTemplatesWrite,
+	buildapiv1.TemplateService_DeleteTemplate_FullMethodName: ScopeTemplatesWrite,
 }
 
 func hasScope(scopes []string, required string) bool {

@@ -1,0 +1,138 @@
+syntax = "proto3";
+
+package buildapi.v1;
+
+import "google/api/annotations.proto";
+
+option go_package = "github.com/builderhub/build-api/api/gen/buildapi/v1;buildapiv1";
+
+// TemplateService manages namespaced BuildkitBuilderTemplate CRs (org-scoped blueprints
+// for builders). Templates live in the same Kubernetes namespace as the organization
+// and are referenced by short name via builder spec.template_ref.
+//
+// All operations are namespace-scoped (the namespace is the organization ID).
+service TemplateService {
+  // ListTemplates returns all BuildkitBuilderTemplates in the organization namespace.
+  rpc ListTemplates(ListTemplatesRequest) returns (ListTemplatesResponse) {
+    option (google.api.http) = {get: "/v1/namespaces/{namespace}/templates"};
+  }
+
+  // GetTemplate returns a single template by name within the organization namespace.
+  rpc GetTemplate(GetTemplateRequest) returns (GetTemplateResponse) {
+    option (google.api.http) = {get: "/v1/namespaces/{namespace}/templates/{name}"};
+  }
+
+  // CreateTemplate creates a new BuildkitBuilderTemplate in the organization namespace.
+  // The caller must be a member of the organization and have templates:write scope (or JWT full access).
+  rpc CreateTemplate(CreateTemplateRequest) returns (CreateTemplateResponse) {
+    option (google.api.http) = {
+      post: "/v1/namespaces/{namespace}/templates"
+      body: "*"
+    };
+  }
+
+  // UpdateTemplate updates an existing template's spec within the organization namespace.
+  // Name is immutable; only spec fields are replaced.
+  rpc UpdateTemplate(UpdateTemplateRequest) returns (UpdateTemplateResponse) {
+    option (google.api.http) = {
+      patch: "/v1/namespaces/{namespace}/templates/{name}"
+      body: "*"
+    };
+  }
+
+  // DeleteTemplate deletes a template. Existing builders in the same namespace that
+  // reference it will fail to resolve on their next reconcile.
+  rpc DeleteTemplate(DeleteTemplateRequest) returns (DeleteTemplateResponse) {
+    option (google.api.http) = {delete: "/v1/namespaces/{namespace}/templates/{name}"};
+  }
+}
+
+message ListTemplatesRequest {
+  string namespace = 1;
+}
+
+message ListTemplatesResponse {
+  repeated BuilderTemplate templates = 1;
+}
+
+message GetTemplateRequest {
+  string namespace = 1;
+  string name = 2;
+}
+
+message GetTemplateResponse {
+  BuilderTemplate template = 1;
+}
+
+message CreateTemplateRequest {
+  string namespace = 1;
+  string name = 2;
+  BuilderTemplateSpec spec = 3;
+}
+
+message CreateTemplateResponse {
+  BuilderTemplate template = 1;
+}
+
+message UpdateTemplateRequest {
+  string namespace = 1;
+  string name = 2;
+  BuilderTemplateSpec spec = 3;
+}
+
+message UpdateTemplateResponse {
+  BuilderTemplate template = 1;
+}
+
+message DeleteTemplateRequest {
+  string namespace = 1;
+  string name = 2;
+}
+
+message DeleteTemplateResponse {}
+
+// BuilderTemplate is the API representation of a BuildkitBuilderTemplate CR.
+message BuilderTemplate {
+  string namespace = 1;
+  string name = 2;
+  BuilderTemplateSpec spec = 3;
+}
+
+// BuilderTemplateSpec mirrors the commonly-used fields from the CRD spec.
+// Advanced scheduling fields (resources, tolerations, affinity, nodeSelector,
+// buildkitdToml) are not yet modeled in the API; they can be managed directly
+// on the CR or via future API revisions.
+message BuilderTemplateSpec {
+  // BuildkitImage is the BuildKit daemon image (default in CRD: moby/buildkit:master-rootless)
+  string buildkit_image = 1;
+
+  // Rootless runs BuildKit in rootless mode (default: true)
+  bool rootless = 2;
+
+  // Arch pins to kubernetes.io/arch (amd64 or arm64). Empty = no pin.
+  string arch = 3;
+
+  // CacheConfig defines the cache backend.
+  CacheConfig cache_config = 4;
+}
+
+message CacheConfig {
+  // Type is one of: "pvc", "none", "s3"
+  string type = 1;
+
+  PVCConfig pvc = 2;
+  S3Config s3 = 3;
+}
+
+message PVCConfig {
+  string size = 1;
+  string storage_class_name = 2;
+  repeated string access_modes = 3;
+}
+
+message S3Config {
+  string bucket = 1;
+  string region = 2;
+  string endpoint = 3;
+  // secretRef (for credentials) is intentionally omitted from the v1 API surface.
+}

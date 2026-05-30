@@ -606,7 +606,7 @@ type CreateUserApiKeyRequest struct {
 	state  protoimpl.MessageState `protogen:"open.v1"`
 	Name   string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
 	Scopes []string               `protobuf:"bytes,2,rep,name=scopes,proto3" json:"scopes,omitempty"`
-	// Days until the key expires. If 0, the server uses a default (365 days). Range 1–3650 when set explicitly.
+	// Days until the key expires. 0 = default (365 days). -1 = never expires. Otherwise 1–3650.
 	ExpiresInDays int32 `protobuf:"varint,3,opt,name=expires_in_days,json=expiresInDays,proto3" json:"expires_in_days,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -883,7 +883,7 @@ type UserApiKeyMetadata struct {
 	Scopes     []string               `protobuf:"bytes,4,rep,name=scopes,proto3" json:"scopes,omitempty"`
 	CreatedAt  int64                  `protobuf:"varint,5,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
 	LastUsedAt int64                  `protobuf:"varint,6,opt,name=last_used_at,json=lastUsedAt,proto3" json:"last_used_at,omitempty"`
-	// Unix seconds when the key stops working for API auth.
+	// Unix seconds when the key stops working for API auth. 0 = no expiry (never).
 	ExpiresAt     int64 `protobuf:"varint,7,opt,name=expires_at,json=expiresAt,proto3" json:"expires_at,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
