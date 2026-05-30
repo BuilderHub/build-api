@@ -1,14 +1,13 @@
+---
 name: On Push
 
-on:
+"on":
   push:
     branches:
       - main
-      - master
   pull_request:
     branches:
       - main
-      - master
 
 jobs:
   build-and-push:
@@ -18,7 +17,7 @@ jobs:
     uses: BuilderHub/actions/.github/workflows/buildah-build-push-workflow.yaml@v0.1.0-beta.2
     with:
       image: build-api
-      tags: "latest ${{ github.sha }}"
+      tags: ${{ github.sha }}
       containerfiles: Dockerfile
       context: .
       registry: ghcr.io/builderhub
@@ -26,3 +25,4 @@ jobs:
     secrets:
       REGISTRY_USERNAME: ${{ github.actor }}
       REGISTRY_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
+
