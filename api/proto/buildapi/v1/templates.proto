@@ -99,9 +99,9 @@ message BuilderTemplate {
 }
 
 // BuilderTemplateSpec mirrors the commonly-used fields from the CRD spec.
-// Advanced scheduling fields (resources, tolerations, affinity, nodeSelector,
-// buildkitdToml) are not yet modeled in the API; they can be managed directly
-// on the CR or via future API revisions.
+// Some advanced scheduling fields (tolerations, affinity, nodeSelector,
+// buildkitdToml) can still be managed directly on the CR or via future API
+// revisions if needed.
 message BuilderTemplateSpec {
   // BuildkitImage is the BuildKit daemon image (default in CRD: moby/buildkit:master-rootless)
   string buildkit_image = 1;
@@ -111,6 +111,11 @@ message BuilderTemplateSpec {
 
   // Arch pins to kubernetes.io/arch (amd64 or arm64). Empty = no pin.
   string arch = 3;
+
+  // Resources for the buildkitd container (requests and limits). Quantities use
+  // Kubernetes string format (e.g. "100m", "256Mi", "1Gi"). When omitted, BestEffort QoS.
+  // Mirrors corev1.ResourceRequirements.
+  ResourceRequirements resources = 5;
 
   // CacheConfig defines the cache backend.
   CacheConfig cache_config = 4;
@@ -135,4 +140,13 @@ message S3Config {
   string region = 2;
   string endpoint = 3;
   // secretRef (for credentials) is intentionally omitted from the v1 API surface.
+}
+
+// ResourceRequirements mirrors a subset of corev1.ResourceRequirements for
+// setting CPU/memory requests and limits on the builder pod (via the template).
+message ResourceRequirements {
+  // Limits are the maximum amounts (e.g. {"cpu": "2", "memory": "4Gi"})
+  map<string, string> limits = 1;
+  // Requests are the guaranteed minimum amounts (e.g. {"cpu": "100m", "memory": "256Mi"})
+  map<string, string> requests = 2;
 }
