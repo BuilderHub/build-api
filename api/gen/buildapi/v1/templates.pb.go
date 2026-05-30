@@ -564,9 +564,9 @@ func (x *BuilderTemplate) GetSpec() *BuilderTemplateSpec {
 }
 
 // BuilderTemplateSpec mirrors the commonly-used fields from the CRD spec.
-// Advanced scheduling fields (resources, tolerations, affinity, nodeSelector,
-// buildkitdToml) are not yet modeled in the API; they can be managed directly
-// on the CR or via future API revisions.
+// Some advanced scheduling fields (tolerations, affinity, nodeSelector,
+// buildkitdToml) can still be managed directly on the CR or via future API
+// revisions if needed.
 type BuilderTemplateSpec struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// BuildkitImage is the BuildKit daemon image (default in CRD: moby/buildkit:master-rootless)
@@ -575,6 +575,10 @@ type BuilderTemplateSpec struct {
 	Rootless bool `protobuf:"varint,2,opt,name=rootless,proto3" json:"rootless,omitempty"`
 	// Arch pins to kubernetes.io/arch (amd64 or arm64). Empty = no pin.
 	Arch string `protobuf:"bytes,3,opt,name=arch,proto3" json:"arch,omitempty"`
+	// Resources for the buildkitd container (requests and limits). Quantities use
+	// Kubernetes string format (e.g. "100m", "256Mi", "1Gi"). When omitted, BestEffort QoS.
+	// Mirrors corev1.ResourceRequirements.
+	Resources *ResourceRequirements `protobuf:"bytes,5,opt,name=resources,proto3" json:"resources,omitempty"`
 	// CacheConfig defines the cache backend.
 	CacheConfig   *CacheConfig `protobuf:"bytes,4,opt,name=cache_config,json=cacheConfig,proto3" json:"cache_config,omitempty"`
 	unknownFields protoimpl.UnknownFields
@@ -630,6 +634,13 @@ func (x *BuilderTemplateSpec) GetArch() string {
 		return x.Arch
 	}
 	return ""
+}
+
+func (x *BuilderTemplateSpec) GetResources() *ResourceRequirements {
+	if x != nil {
+		return x.Resources
+	}
+	return nil
 }
 
 func (x *BuilderTemplateSpec) GetCacheConfig() *CacheConfig {
@@ -820,6 +831,62 @@ func (x *S3Config) GetEndpoint() string {
 	return ""
 }
 
+// ResourceRequirements mirrors a subset of corev1.ResourceRequirements for
+// setting CPU/memory requests and limits on the builder pod (via the template).
+type ResourceRequirements struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Limits are the maximum amounts (e.g. {"cpu": "2", "memory": "4Gi"})
+	Limits map[string]string `protobuf:"bytes,1,rep,name=limits,proto3" json:"limits,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	// Requests are the guaranteed minimum amounts (e.g. {"cpu": "100m", "memory": "256Mi"})
+	Requests      map[string]string `protobuf:"bytes,2,rep,name=requests,proto3" json:"requests,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ResourceRequirements) Reset() {
+	*x = ResourceRequirements{}
+	mi := &file_buildapi_v1_templates_proto_msgTypes[15]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ResourceRequirements) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ResourceRequirements) ProtoMessage() {}
+
+func (x *ResourceRequirements) ProtoReflect() protoreflect.Message {
+	mi := &file_buildapi_v1_templates_proto_msgTypes[15]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ResourceRequirements.ProtoReflect.Descriptor instead.
+func (*ResourceRequirements) Descriptor() ([]byte, []int) {
+	return file_buildapi_v1_templates_proto_rawDescGZIP(), []int{15}
+}
+
+func (x *ResourceRequirements) GetLimits() map[string]string {
+	if x != nil {
+		return x.Limits
+	}
+	return nil
+}
+
+func (x *ResourceRequirements) GetRequests() map[string]string {
+	if x != nil {
+		return x.Requests
+	}
+	return nil
+}
+
 var File_buildapi_v1_templates_proto protoreflect.FileDescriptor
 
 const file_buildapi_v1_templates_proto_rawDesc = "" +
@@ -853,11 +920,12 @@ const file_buildapi_v1_templates_proto_rawDesc = "" +
 	"\x0fBuilderTemplate\x12\x1c\n" +
 	"\tnamespace\x18\x01 \x01(\tR\tnamespace\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x124\n" +
-	"\x04spec\x18\x03 \x01(\v2 .buildapi.v1.BuilderTemplateSpecR\x04spec\"\xa9\x01\n" +
+	"\x04spec\x18\x03 \x01(\v2 .buildapi.v1.BuilderTemplateSpecR\x04spec\"\xea\x01\n" +
 	"\x13BuilderTemplateSpec\x12%\n" +
 	"\x0ebuildkit_image\x18\x01 \x01(\tR\rbuildkitImage\x12\x1a\n" +
 	"\brootless\x18\x02 \x01(\bR\brootless\x12\x12\n" +
-	"\x04arch\x18\x03 \x01(\tR\x04arch\x12;\n" +
+	"\x04arch\x18\x03 \x01(\tR\x04arch\x12?\n" +
+	"\tresources\x18\x05 \x01(\v2!.buildapi.v1.ResourceRequirementsR\tresources\x12;\n" +
 	"\fcache_config\x18\x04 \x01(\v2\x18.buildapi.v1.CacheConfigR\vcacheConfig\"r\n" +
 	"\vCacheConfig\x12\x12\n" +
 	"\x04type\x18\x01 \x01(\tR\x04type\x12(\n" +
@@ -870,7 +938,16 @@ const file_buildapi_v1_templates_proto_rawDesc = "" +
 	"\bS3Config\x12\x16\n" +
 	"\x06bucket\x18\x01 \x01(\tR\x06bucket\x12\x16\n" +
 	"\x06region\x18\x02 \x01(\tR\x06region\x12\x1a\n" +
-	"\bendpoint\x18\x03 \x01(\tR\bendpoint2\xd2\x05\n" +
+	"\bendpoint\x18\x03 \x01(\tR\bendpoint\"\xa2\x02\n" +
+	"\x14ResourceRequirements\x12E\n" +
+	"\x06limits\x18\x01 \x03(\v2-.buildapi.v1.ResourceRequirements.LimitsEntryR\x06limits\x12K\n" +
+	"\brequests\x18\x02 \x03(\v2/.buildapi.v1.ResourceRequirements.RequestsEntryR\brequests\x1a9\n" +
+	"\vLimitsEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\x1a;\n" +
+	"\rRequestsEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x012\xd2\x05\n" +
 	"\x0fTemplateService\x12\x84\x01\n" +
 	"\rListTemplates\x12!.buildapi.v1.ListTemplatesRequest\x1a\".buildapi.v1.ListTemplatesResponse\",\x82\xd3\xe4\x93\x02&\x12$/v1/namespaces/{namespace}/templates\x12\x85\x01\n" +
 	"\vGetTemplate\x12\x1f.buildapi.v1.GetTemplateRequest\x1a .buildapi.v1.GetTemplateResponse\"3\x82\xd3\xe4\x93\x02-\x12+/v1/namespaces/{namespace}/templates/{name}\x12\x8a\x01\n" +
@@ -890,7 +967,7 @@ func file_buildapi_v1_templates_proto_rawDescGZIP() []byte {
 	return file_buildapi_v1_templates_proto_rawDescData
 }
 
-var file_buildapi_v1_templates_proto_msgTypes = make([]protoimpl.MessageInfo, 15)
+var file_buildapi_v1_templates_proto_msgTypes = make([]protoimpl.MessageInfo, 18)
 var file_buildapi_v1_templates_proto_goTypes = []any{
 	(*ListTemplatesRequest)(nil),   // 0: buildapi.v1.ListTemplatesRequest
 	(*ListTemplatesResponse)(nil),  // 1: buildapi.v1.ListTemplatesResponse
@@ -907,6 +984,9 @@ var file_buildapi_v1_templates_proto_goTypes = []any{
 	(*CacheConfig)(nil),            // 12: buildapi.v1.CacheConfig
 	(*PVCConfig)(nil),              // 13: buildapi.v1.PVCConfig
 	(*S3Config)(nil),               // 14: buildapi.v1.S3Config
+	(*ResourceRequirements)(nil),   // 15: buildapi.v1.ResourceRequirements
+	nil,                            // 16: buildapi.v1.ResourceRequirements.LimitsEntry
+	nil,                            // 17: buildapi.v1.ResourceRequirements.RequestsEntry
 }
 var file_buildapi_v1_templates_proto_depIdxs = []int32{
 	10, // 0: buildapi.v1.ListTemplatesResponse.templates:type_name -> buildapi.v1.BuilderTemplate
@@ -916,24 +996,27 @@ var file_buildapi_v1_templates_proto_depIdxs = []int32{
 	11, // 4: buildapi.v1.UpdateTemplateRequest.spec:type_name -> buildapi.v1.BuilderTemplateSpec
 	10, // 5: buildapi.v1.UpdateTemplateResponse.template:type_name -> buildapi.v1.BuilderTemplate
 	11, // 6: buildapi.v1.BuilderTemplate.spec:type_name -> buildapi.v1.BuilderTemplateSpec
-	12, // 7: buildapi.v1.BuilderTemplateSpec.cache_config:type_name -> buildapi.v1.CacheConfig
-	13, // 8: buildapi.v1.CacheConfig.pvc:type_name -> buildapi.v1.PVCConfig
-	14, // 9: buildapi.v1.CacheConfig.s3:type_name -> buildapi.v1.S3Config
-	0,  // 10: buildapi.v1.TemplateService.ListTemplates:input_type -> buildapi.v1.ListTemplatesRequest
-	2,  // 11: buildapi.v1.TemplateService.GetTemplate:input_type -> buildapi.v1.GetTemplateRequest
-	4,  // 12: buildapi.v1.TemplateService.CreateTemplate:input_type -> buildapi.v1.CreateTemplateRequest
-	6,  // 13: buildapi.v1.TemplateService.UpdateTemplate:input_type -> buildapi.v1.UpdateTemplateRequest
-	8,  // 14: buildapi.v1.TemplateService.DeleteTemplate:input_type -> buildapi.v1.DeleteTemplateRequest
-	1,  // 15: buildapi.v1.TemplateService.ListTemplates:output_type -> buildapi.v1.ListTemplatesResponse
-	3,  // 16: buildapi.v1.TemplateService.GetTemplate:output_type -> buildapi.v1.GetTemplateResponse
-	5,  // 17: buildapi.v1.TemplateService.CreateTemplate:output_type -> buildapi.v1.CreateTemplateResponse
-	7,  // 18: buildapi.v1.TemplateService.UpdateTemplate:output_type -> buildapi.v1.UpdateTemplateResponse
-	9,  // 19: buildapi.v1.TemplateService.DeleteTemplate:output_type -> buildapi.v1.DeleteTemplateResponse
-	15, // [15:20] is the sub-list for method output_type
-	10, // [10:15] is the sub-list for method input_type
-	10, // [10:10] is the sub-list for extension type_name
-	10, // [10:10] is the sub-list for extension extendee
-	0,  // [0:10] is the sub-list for field type_name
+	15, // 7: buildapi.v1.BuilderTemplateSpec.resources:type_name -> buildapi.v1.ResourceRequirements
+	12, // 8: buildapi.v1.BuilderTemplateSpec.cache_config:type_name -> buildapi.v1.CacheConfig
+	13, // 9: buildapi.v1.CacheConfig.pvc:type_name -> buildapi.v1.PVCConfig
+	14, // 10: buildapi.v1.CacheConfig.s3:type_name -> buildapi.v1.S3Config
+	16, // 11: buildapi.v1.ResourceRequirements.limits:type_name -> buildapi.v1.ResourceRequirements.LimitsEntry
+	17, // 12: buildapi.v1.ResourceRequirements.requests:type_name -> buildapi.v1.ResourceRequirements.RequestsEntry
+	0,  // 13: buildapi.v1.TemplateService.ListTemplates:input_type -> buildapi.v1.ListTemplatesRequest
+	2,  // 14: buildapi.v1.TemplateService.GetTemplate:input_type -> buildapi.v1.GetTemplateRequest
+	4,  // 15: buildapi.v1.TemplateService.CreateTemplate:input_type -> buildapi.v1.CreateTemplateRequest
+	6,  // 16: buildapi.v1.TemplateService.UpdateTemplate:input_type -> buildapi.v1.UpdateTemplateRequest
+	8,  // 17: buildapi.v1.TemplateService.DeleteTemplate:input_type -> buildapi.v1.DeleteTemplateRequest
+	1,  // 18: buildapi.v1.TemplateService.ListTemplates:output_type -> buildapi.v1.ListTemplatesResponse
+	3,  // 19: buildapi.v1.TemplateService.GetTemplate:output_type -> buildapi.v1.GetTemplateResponse
+	5,  // 20: buildapi.v1.TemplateService.CreateTemplate:output_type -> buildapi.v1.CreateTemplateResponse
+	7,  // 21: buildapi.v1.TemplateService.UpdateTemplate:output_type -> buildapi.v1.UpdateTemplateResponse
+	9,  // 22: buildapi.v1.TemplateService.DeleteTemplate:output_type -> buildapi.v1.DeleteTemplateResponse
+	18, // [18:23] is the sub-list for method output_type
+	13, // [13:18] is the sub-list for method input_type
+	13, // [13:13] is the sub-list for extension type_name
+	13, // [13:13] is the sub-list for extension extendee
+	0,  // [0:13] is the sub-list for field type_name
 }
 
 func init() { file_buildapi_v1_templates_proto_init() }
@@ -947,7 +1030,7 @@ func file_buildapi_v1_templates_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_buildapi_v1_templates_proto_rawDesc), len(file_buildapi_v1_templates_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   15,
+			NumMessages:   18,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

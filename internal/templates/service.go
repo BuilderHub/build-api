@@ -8,6 +8,8 @@ import (
 	"github.com/builderhub/build-api/internal/db"
 	"github.com/builderhub/build-api/internal/k8s"
 	templatev1alpha1 "github.com/builderhub/build-operator/api/buildertemplate/v1alpha1"
+	corev1 "k8s.io/api/core/v1"
+	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 	ctrl "sigs.k8s.io/controller-runtime/pkg/client"
@@ -199,6 +201,7 @@ func templateSpecToProto(s *templatev1alpha1.BuildkitBuilderTemplateSpec) *build
 		BuildkitImage: s.BuildkitImage,
 		Rootless:      s.Rootless,
 		Arch:          s.Arch,
+		Resources:     resourceRequirementsToProto(s.Resources),
 	}
 
 	cc := &buildapiv1.CacheConfig{Type: string(s.CacheConfig.Type)}
@@ -230,6 +233,7 @@ func protoSpecToTemplateSpec(s *buildapiv1.BuilderTemplateSpec) templatev1alpha1
 		BuildkitImage: s.BuildkitImage,
 		Rootless:      s.Rootless,
 		Arch:          s.Arch,
+		Resources:     protoToResourceRequirements(s.Resources),
 	}
 
 	if s.CacheConfig != nil {
@@ -251,4 +255,50 @@ func protoSpecToTemplateSpec(s *buildapiv1.BuilderTemplateSpec) templatev1alpha1
 	}
 
 	return out
+}
+
+// --- resource conversion helpers (for template resources) ---
+
+func resourceRequirementsToProto(rr corev1.ResourceRequirements) *buildapiv1.ResourceRequirements {
+	if len(rr.Limits) == 0 && len(rr.Requests) == 0 {
+		return nil
+	}
+	pr := &buildapiv1.ResourceRequirements{}
+	if len(rr.Limits) > 0 {
+		pr.Limits = make(map[string]string, len(rr.Limits))
+		for k, q := range rr.Limits {
+			pr.Limits[string(k)] = q.String()
+		}
+	}
+	if len(rr.Requests) > 0 {
+		pr.Requests = make(map[string]string, len(rr.Requests))
+		for k, q := range rr.Requests {
+			pr.Requests[string(k)] = q.String()
+		}
+	}
+	return pr
+}
+
+func protoToResourceRequirements(pr *buildapiv1.ResourceRequirements) corev1.ResourceRequirements {
+	if pr == nil {
+		return corev1.ResourceRequirements{}
+	}
+	rr := corev1.ResourceRequirements{}
+	if len(pr.Limits) > 0 {
+		rr.Limits = make(corev1.ResourceList, len(pr.Limits))
+		for k, v := range pr.Limits {
+			if q, err := resource.ParseQuantity(v); err == nil {
+				rr.Limits[corev1.ResourceName(k)] = q
+			}
+		}
+	}
+	if len(pr.Requests) > 0 {
+		rr.Requests = make(corev1.ResourceList, len(pr.Requests))
+		for k, v := range pr.Requests {
+			if q, err := resource.ParseQuantity(v); err == nil {
+				rr.Requests[corev1.ResourceName(k)] = q
+			}
+		}
+	}
+	return rr
 }
