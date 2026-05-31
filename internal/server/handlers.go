@@ -118,7 +118,7 @@ func (s *BuildAPIService) CreateBuilder(ctx context.Context, req *buildapiv1.Cre
 		return nil, status.Error(codes.InvalidArgument, "spec is required")
 	}
 	if req.Spec.TemplateRef == "" {
-		return nil, status.Error(codes.InvalidArgument, "spec.template_ref is required (e.g. builder-small, builder-medium, builder-large, builder-xlarge)")
+		return nil, status.Error(codes.InvalidArgument, "spec.template_ref is required")
 	}
 	b := &buildkitv1alpha1.BuildkitBuilder{
 		ObjectMeta: metav1.ObjectMeta{Namespace: req.Namespace, Name: req.Name},

@@ -749,7 +749,7 @@ func (x *Builder) GetStatus() *BuilderStatus {
 type BuilderSpec struct {
 	state              protoimpl.MessageState `protogen:"open.v1"`
 	TemplateRef        string                 `protobuf:"bytes,1,opt,name=template_ref,json=templateRef,proto3" json:"template_ref,omitempty"`
-	Mode               string                 `protobuf:"bytes,2,opt,name=mode,proto3" json:"mode,omitempty"` // ephemeral, persistent, sleepy
+	Mode               string                 `protobuf:"bytes,2,opt,name=mode,proto3" json:"mode,omitempty"` // persistent, sleepy
 	Replicas           int32                  `protobuf:"varint,3,opt,name=replicas,proto3" json:"replicas,omitempty"`
 	IdleTimeoutSeconds int32                  `protobuf:"varint,4,opt,name=idle_timeout_seconds,json=idleTimeoutSeconds,proto3" json:"idle_timeout_seconds,omitempty"`
 	Labels             map[string]string      `protobuf:"bytes,5,rep,name=labels,proto3" json:"labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
