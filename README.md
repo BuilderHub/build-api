@@ -79,7 +79,7 @@ When creating API keys (via AuthService), the following scopes are available:
 
 - `builders:read`, `builders:write`
 - `organizations:read`, `organizations:write`
-- `templates:read`, `templates:write` (new — for managing BuildkitBuilderTemplates)
+- `templates:read`, `templates:write`
 
 JWT sessions from `auth login` have full access.
 
