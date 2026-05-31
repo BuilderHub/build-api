@@ -5,6 +5,13 @@
 # Postgres - plain Deployment, no operator
 k8s_yaml(read_file('local-k8s/postgres.yaml'))
 
+# UI grouping - attach the PVC to the main postgres workload resource
+k8s_resource(
+    'postgres',
+    labels=['backend'],
+    objects=['postgres-data:persistentvolumeclaim'],
+)
+
 # Migrations - manual action (requires migrate CLI from nix dev shell)
 local_resource(
     'build-api-migrate',
@@ -12,6 +19,7 @@ local_resource(
     deps=['migrations'],
     resource_deps=['postgres-port-forward'],
     trigger_mode=TRIGGER_MODE_MANUAL,
+    labels=['backend'],
 )
 
 # Port-forward Postgres for local build-api
@@ -21,6 +29,7 @@ local_resource(
     resource_deps=['postgres'],
     readiness_probe=probe(period_secs=2, tcp_socket=tcp_socket_action(port=5432)),
     allow_parallel=True,
+    labels=['backend'],
 )
 
 # Build and run build-api as local binary
@@ -32,4 +41,5 @@ local_resource(
     ignore=['bin'],
     resource_deps=['postgres-port-forward'],
     allow_parallel=True,
+    labels=['backend'],
 )
