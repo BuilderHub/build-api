@@ -121,7 +121,7 @@ message Builder {
 
 message BuilderSpec {
   string template_ref = 1;
-  string mode = 2; // ephemeral, persistent, sleepy
+  string mode = 2; // persistent, sleepy
   int32 replicas = 3;
   int32 idle_timeout_seconds = 4;
   map<string, string> labels = 5;
